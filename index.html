@@ -48,7 +48,7 @@
     <!-- ================= ADMIN STATUS BAR (VISIBLE ONLY WHEN LOGGED IN) ================= -->
     <div class="admin-bar" id="adminStatusBar">
       <span class="admin-badge"><span class="dot"></span> Admin Mode Active</span>
-      <button class="admin-bar-btn" onclick="resetPortfolioData()" title="Reset all data to defaults"><i class="fas fa-undo"></i> Reset</button>
+      <button class="admin-bar-btn" onclick="resetPortfolioData()" title="Reset all data to defaults"><i class="fas fa-undo"></i> Reset All</button>
       <button class="admin-bar-btn" id="adminLogoutBtn" title="Log out from admin mode"><i class="fas fa-sign-out-alt"></i> Logout</button>
     </div>
 
@@ -60,7 +60,7 @@
         <div class="hero-text">
           <div class="status-pill">
             <span class="pulse-dot"></span>
-            <span>Available for Web Projects & Frontend Roles</span>
+            <span id="heroStatusText">Available for Web Projects & Frontend Roles</span>
           </div>
 
           <h1>
@@ -73,8 +73,8 @@
             <span class="typing-cursor"></span>
           </div>
 
-          <p class="hero-bio">
-            Frontend Web Developer specializing in <strong>Angular, TypeScript, and modern JavaScript (ES6+)</strong>. Third-year Information Technology student at Assiut International Technological University (AITU) and <strong>DEPI Angular Scholar</strong>. Experienced in building responsive web applications and corporate websites with sleek UI/UX design.
+          <p class="hero-bio" id="heroBio">
+            Frontend Web Developer specializing in <strong>Angular, TypeScript, and modern JavaScript (ES6+)</strong>. Fourth-year Information Technology student at Assiut International Technological University (AITU) and <strong>DEPI Angular Scholar</strong>. Experienced in building responsive web applications and corporate websites with sleek UI/UX design.
           </p>
 
           <div class="hero-buttons">
@@ -103,6 +103,13 @@
             <a href="tel:+201024213553" class="social-circle" title="Phone">
               <i class="fas fa-phone-alt"></i>
             </a>
+          </div>
+
+          <!-- Admin Edit Hero Button -->
+          <div style="margin-top: 20px;">
+            <button class="btn-section-admin" onclick="openEditHeroModal()">
+              <i class="fas fa-edit"></i> Edit Hero Section
+            </button>
           </div>
         </div>
 
@@ -138,15 +145,21 @@
       <h2 class="section-title">About <span class="gradient-text">Me</span></h2>
       <p class="section-subtitle">Bridging modern software engineering with user-centered interface design.</p>
 
+      <div class="section-admin-bar">
+        <button class="btn-section-admin" onclick="openEditAboutModal()">
+          <i class="fas fa-edit"></i> Edit About & Stats
+        </button>
+      </div>
+
       <div class="about-grid">
         <div class="about-card">
-          <p>
-            I'm <strong>Mariem Mohamed Mahmoud</strong>, a passionate Frontend Web Developer and UI/UX enthusiast currently in my third year studying Information Technology at Assiut International Technological University (AITU).
+          <p id="aboutP1">
+            I'm <strong>Mariem Mohamed Mahmoud</strong>, a passionate Frontend Web Developer and UI/UX enthusiast currently in my fourth year studying Information Technology at Assiut International Technological University (AITU).
           </p>
-          <p>
+          <p id="aboutP2">
             I specialize in architecting scalable Single Page Applications (SPAs) with <strong>Angular, TypeScript, and RxJS</strong>, while leveraging modern design tools like Figma to transform complex requirements into intuitive, fluid digital experiences.
           </p>
-          <p>
+          <p id="aboutP3">
             With real-world experience building the official company website and web applications at <strong>Kernel Panic</strong>, as well as intensive training in the <strong>Digital Egypt Pioneers Initiative (DEPI)</strong>, I focus on clean component architectures, robust state management, and high-performance cross-device compatibility.
           </p>
         </div>
@@ -154,26 +167,26 @@
         <div class="about-stats-grid">
           <div class="stat-box">
             <div class="stat-icon"><i class="fas fa-code-branch"></i></div>
-            <h3>3+</h3>
-            <p>Years Learning Tech</p>
+            <h3 id="stat1Num">4+</h3>
+            <p id="stat1Label">Years Learning Tech</p>
           </div>
 
           <div class="stat-box">
             <div class="stat-icon"><i class="fas fa-layer-group"></i></div>
-            <h3>7+</h3>
-            <p>Projects Delivered</p>
+            <h3 id="stat2Num">7+</h3>
+            <p id="stat2Label">Projects Delivered</p>
           </div>
 
           <div class="stat-box">
             <div class="stat-icon"><i class="fas fa-award"></i></div>
-            <h3>DEPI</h3>
-            <p>Angular Scholar</p>
+            <h3 id="stat3Num">DEPI</h3>
+            <p id="stat3Label">Angular Scholar</p>
           </div>
 
           <div class="stat-box">
             <div class="stat-icon"><i class="fas fa-heart"></i></div>
-            <h3>100%</h3>
-            <p>Dedication & Quality</p>
+            <h3 id="stat4Num">100%</h3>
+            <p id="stat4Label">Dedication & Quality</p>
           </div>
         </div>
       </div>
@@ -184,52 +197,14 @@
       <h2 class="section-title">Work <span class="gradient-text">Experience</span></h2>
       <p class="section-subtitle">Hands-on industry and professional development tracks.</p>
 
-      <div class="experience-timeline">
-        <!-- Kernel Panic -->
-        <div class="experience-card">
-          <div class="exp-header">
-            <div>
-              <h3 class="exp-role">Frontend Web Developer</h3>
-              <div class="exp-company"><i class="fas fa-briefcase"></i> Kernel Panic IT Team</div>
-            </div>
-            <span class="exp-date">2026</span>
-          </div>
-          <ul class="exp-bullets">
-            <li>Designed and built the official company website using HTML5, CSS3, and modern JavaScript with fast loading times and full responsiveness.</li>
-            <li>Collaborated in an agile team to build client and internal web applications, translating Figma wireframes into modular, reusable frontend components.</li>
-            <li>Applied modern web standards, code reviews and Git version control in a collaborative workflow.</li>
-          </ul>
-        </div>
+      <div class="section-admin-bar">
+        <button class="btn-admin-add" onclick="openAddExpModal()">
+          <i class="fas fa-plus"></i> Add New Experience
+        </button>
+      </div>
 
-        <!-- DEPI -->
-        <div class="experience-card">
-          <div class="exp-header">
-            <div>
-              <h3 class="exp-role">Angular Frontend Developer Fellow</h3>
-              <div class="exp-company"><i class="fas fa-graduation-cap"></i> Digital Egypt Pioneers Initiative (DEPI) - MCIT</div>
-            </div>
-            <span class="exp-date">2025 / 2026</span>
-          </div>
-          <ul class="exp-bullets">
-            <li>Completed intensive government-sponsored training focused on enterprise-scale Single Page Applications (SPAs) with Angular & TypeScript.</li>
-            <li>Mastered reactive programming with RxJS, modular component-based architecture, client-side routing, and RESTful API integrations.</li>
-            <li>Built practical e-commerce and management web applications adhering to clean coding standards.</li>
-          </ul>
-        </div>
-
-        <!-- iSchool -->
-        <div class="experience-card">
-          <div class="exp-header">
-            <div>
-              <h3 class="exp-role">Instructor</h3>
-              <div class="exp-company"><i class="fas fa-chalkboard-teacher"></i> iSchool, 2026 Intake</div>
-            </div>
-            <span class="exp-date">2026</span>
-          </div>
-          <ul class="exp-bullets">
-            <li>Taught and mentored students in iSchool's 2026 intake, supporting the next generation of tech leaders.</li>
-          </ul>
-        </div>
+      <div class="experience-timeline" id="experienceList">
+        <!-- Rendered dynamically by script.js -->
       </div>
     </section>
 
@@ -238,26 +213,14 @@
       <h2 class="section-title">My <span class="gradient-text">Education</span></h2>
       <p class="section-subtitle">Academic foundations in computer science and technological engineering.</p>
 
-      <div class="education-grid">
-        <div class="edu-card">
-          <div class="edu-icon-wrap"><i class="fas fa-university"></i></div>
-          <h3>Bachelor of Information Technology</h3>
-          <div class="edu-institution">Assiut International Technological University (AITU)</div>
-          <span class="edu-badge-date"><i class="far fa-calendar-alt"></i> 2023 – 2027 (Expected)</span>
-          <p>
-            Specializing in Software Development, Web Architectures, Database Management Systems, Network Engineering, and Algorithms.
-          </p>
-        </div>
+      <div class="section-admin-bar">
+        <button class="btn-admin-add" onclick="openAddEduModal()">
+          <i class="fas fa-plus"></i> Add New Education
+        </button>
+      </div>
 
-        <div class="edu-card">
-          <div class="edu-icon-wrap"><i class="fas fa-school"></i></div>
-          <h3>High School Diploma in IT</h3>
-          <div class="edu-institution">Integrated Technical Education Cluster (ITEC Assiut)</div>
-          <span class="edu-badge-date"><i class="far fa-calendar-alt"></i> 2019 – 2022</span>
-          <p>
-            Practical foundations in computer systems, programming fundamentals, networking basics, alongside intensive German language studies.
-          </p>
-        </div>
+      <div class="education-grid" id="educationList">
+        <!-- Rendered dynamically by script.js -->
       </div>
     </section>
 
@@ -266,74 +229,14 @@
       <h2 class="section-title">Technical <span class="gradient-text">Skills</span></h2>
       <p class="section-subtitle">Core technologies and frameworks I use to bring ideas to life.</p>
 
-      <div class="skills-grid">
-        <!-- Frontend Development -->
-        <div class="skill-category-card">
-          <div class="skill-cat-header">
-            <i class="fas fa-laptop-code"></i>
-            <h3>Frontend Development</h3>
-          </div>
-          <div class="skill-pills-wrap">
-            <span class="skill-pill featured">Angular</span>
-            <span class="skill-pill featured">TypeScript</span>
-            <span class="skill-pill featured">JavaScript (ES6+)</span>
-            <span class="skill-pill">RxJS</span>
-            <span class="skill-pill">HTML5</span>
-            <span class="skill-pill">CSS3</span>
-            <span class="skill-pill">Responsive Design</span>
-            <span class="skill-pill">Bootstrap</span>
-            <span class="skill-pill">Tailwind CSS</span>
-          </div>
-        </div>
+      <div class="section-admin-bar">
+        <button class="btn-admin-add" onclick="openAddSkillModal()">
+          <i class="fas fa-plus"></i> Add Skill Category
+        </button>
+      </div>
 
-        <!-- UI/UX Design -->
-        <div class="skill-category-card">
-          <div class="skill-cat-header">
-            <i class="fas fa-paint-brush"></i>
-            <h3>UI / UX Design</h3>
-          </div>
-          <div class="skill-pills-wrap">
-            <span class="skill-pill featured">Figma</span>
-            <span class="skill-pill">Wireframing</span>
-            <span class="skill-pill">Interactive Prototyping</span>
-            <span class="skill-pill">User Research</span>
-            <span class="skill-pill">Design Systems</span>
-            <span class="skill-pill">Mobile-First UI</span>
-          </div>
-        </div>
-
-        <!-- Tools & Databases -->
-        <div class="skill-category-card">
-          <div class="skill-cat-header">
-            <i class="fas fa-tools"></i>
-            <h3>Tools & Core CS</h3>
-          </div>
-          <div class="skill-pills-wrap">
-            <span class="skill-pill featured">Git & GitHub</span>
-            <span class="skill-pill">RESTful APIs</span>
-            <span class="skill-pill">VS Code</span>
-            <span class="skill-pill">Postman</span>
-            <span class="skill-pill">SQLite / SQL</span>
-            <span class="skill-pill">C# & OOP</span>
-            <span class="skill-pill">C++</span>
-            <span class="skill-pill">Embedded Systems</span>
-          </div>
-        </div>
-
-        <!-- Professional Soft Skills -->
-        <div class="skill-category-card">
-          <div class="skill-cat-header">
-            <i class="fas fa-users-cog"></i>
-            <h3>Professional Skills</h3>
-          </div>
-          <div class="skill-pills-wrap">
-            <span class="skill-pill">Problem Solving</span>
-            <span class="skill-pill">Agile Collaboration</span>
-            <span class="skill-pill">Continuous Learning</span>
-            <span class="skill-pill">Code Reviews</span>
-            <span class="skill-pill">Effective Communication</span>
-          </div>
-        </div>
+      <div class="skills-grid" id="skillsList">
+        <!-- Rendered dynamically by script.js -->
       </div>
     </section>
 
@@ -367,7 +270,7 @@
     <!-- ================= CERTIFICATIONS ================= -->
     <section class="certifications" id="certifications">
       <h2 class="section-title">Certifications & <span class="gradient-text">Credentials</span></h2>
-      <p class="section-subtitle">Verified programs and specializations in web development and computer science.</p>
+      <p class="section-subtitle">Accredited certifications and technical trainings.</p>
 
       <div class="projects-header-actions" style="justify-content: flex-end; margin-bottom: 25px;">
         <!-- Admin Add Button -->
@@ -387,13 +290,19 @@
       <h2 class="section-title">Get In <span class="gradient-text">Touch</span></h2>
       <p class="section-subtitle">Have a question or want to collaborate on a project? Feel free to reach out!</p>
 
+      <div class="section-admin-bar">
+        <button class="btn-section-admin" onclick="openEditContactModal()">
+          <i class="fas fa-edit"></i> Edit Contact Info
+        </button>
+      </div>
+
       <div class="contact-grid">
         <div class="contact-info-panel">
           <div class="contact-box">
             <div class="contact-icon"><i class="fas fa-envelope"></i></div>
             <div class="contact-details">
               <h4>Email Address</h4>
-              <p><a href="mailto:mar780032@gmail.com" style="color: inherit; text-decoration: none;">mar780032@gmail.com</a></p>
+              <p><a id="contactEmailText" href="mailto:mar780032@gmail.com" style="color: inherit; text-decoration: none;">mar780032@gmail.com</a></p>
             </div>
           </div>
 
@@ -401,7 +310,7 @@
             <div class="contact-icon"><i class="fas fa-phone-alt"></i></div>
             <div class="contact-details">
               <h4>Phone / WhatsApp</h4>
-              <p><a href="tel:+201024213553" style="color: inherit; text-decoration: none;">+20 102 421 3553</a></p>
+              <p><a id="contactPhoneText" href="tel:+201024213553" style="color: inherit; text-decoration: none;">+20 102 421 3553</a></p>
             </div>
           </div>
 
@@ -409,7 +318,7 @@
             <div class="contact-icon"><i class="fas fa-map-marker-alt"></i></div>
             <div class="contact-details">
               <h4>Location</h4>
-              <p>Assiut, Egypt</p>
+              <p id="contactLocText">Assiut, Egypt</p>
             </div>
           </div>
 
@@ -417,7 +326,7 @@
             <div class="contact-icon"><i class="fab fa-github"></i></div>
             <div class="contact-details">
               <h4>GitHub Profile</h4>
-              <p><a href="https://github.com/Mariem184" target="_blank" style="color: inherit; text-decoration: none;">github.com/Mariem184</a></p>
+              <p><a id="contactGithubLink" href="https://github.com/Mariem184" target="_blank" style="color: inherit; text-decoration: none;">github.com/Mariem184</a></p>
             </div>
           </div>
         </div>
@@ -487,16 +396,12 @@
           <div class="modal-section-title">
             <i class="fas fa-info-circle"></i> Project Overview
           </div>
-          <div class="project-modal-desc" id="modalProjectOverview">
-            <!-- Dynamic Overview -->
-          </div>
+          <div class="project-modal-desc" id="modalProjectOverview"></div>
 
           <div class="modal-section-title">
             <i class="fas fa-code"></i> Technologies & Languages Used
           </div>
-          <div class="modal-tech-pills" id="modalProjectTech">
-            <!-- Dynamic tech pills -->
-          </div>
+          <div class="modal-tech-pills" id="modalProjectTech"></div>
 
           <div class="project-modal-actions">
             <a id="modalProjectLiveBtn" href="#" target="_blank" class="btn btn-primary">
@@ -513,7 +418,7 @@
       </div>
     </div>
 
-    <!-- 2. IMAGE LIGHTBOX MODAL (FOR CERTIFICATES / HIGH RES) -->
+    <!-- 2. IMAGE LIGHTBOX MODAL -->
     <div class="modal-overlay" id="imageLightboxModal">
       <div class="modal-box image-lightbox-box">
         <button class="modal-close-btn" onclick="closeAllModals()">&times;</button>
@@ -529,7 +434,7 @@
         <div class="auth-header">
           <i class="fas fa-user-lock"></i>
           <h3>Admin Authentication</h3>
-          <p>Log in with your credentials to edit or add projects and certificates.</p>
+          <p>Log in with your credentials to edit or add content across all sections.</p>
         </div>
 
         <div class="auth-alert" id="authAlert"></div>
@@ -552,7 +457,214 @@
       </div>
     </div>
 
-    <!-- 4. ADD / EDIT PROJECT MODAL -->
+    <!-- 4. EDIT HERO MODAL -->
+    <div class="modal-overlay" id="heroFormModal">
+      <div class="modal-box" style="max-width: 600px; padding: 30px;">
+        <button class="modal-close-btn" onclick="closeAllModals()">&times;</button>
+        <h3 style="font-size: 20px; color: #fff; margin-bottom: 20px;"><i class="fas fa-edit"></i> Edit Hero Section</h3>
+        <form id="heroForm" class="contact-form">
+          <div class="form-group">
+            <label>Availability Status Text</label>
+            <input type="text" id="heroFormStatus" class="form-control" required />
+          </div>
+          <div class="form-group">
+            <label>Hero Bio Paragraph</label>
+            <textarea id="heroFormBio" class="form-control" rows="4" required></textarea>
+          </div>
+          <div class="form-group">
+            <label>Typing Phrases (comma separated)</label>
+            <input type="text" id="heroFormTyping" class="form-control" required />
+          </div>
+          <div style="display: flex; gap: 12px; margin-top: 10px;">
+            <button type="submit" class="btn btn-primary" style="flex: 1; justify-content: center;">Save Changes</button>
+            <button type="button" class="btn btn-outline" onclick="closeAllModals()">Cancel</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- 5. EDIT ABOUT & STATS MODAL -->
+    <div class="modal-overlay" id="aboutFormModal">
+      <div class="modal-box" style="max-width: 700px; padding: 30px;">
+        <button class="modal-close-btn" onclick="closeAllModals()">&times;</button>
+        <h3 style="font-size: 20px; color: #fff; margin-bottom: 20px;"><i class="fas fa-edit"></i> Edit About & Stats</h3>
+        <form id="aboutForm" class="contact-form">
+          <div class="form-group">
+            <label>Paragraph 1</label>
+            <textarea id="aboutFormP1" class="form-control" rows="3" required></textarea>
+          </div>
+          <div class="form-group">
+            <label>Paragraph 2</label>
+            <textarea id="aboutFormP2" class="form-control" rows="3" required></textarea>
+          </div>
+          <div class="form-group">
+            <label>Paragraph 3</label>
+            <textarea id="aboutFormP3" class="form-control" rows="3" required></textarea>
+          </div>
+
+          <h4 style="color: var(--cyan-primary); font-size: 15px; margin-top: 10px;">Stats Counters</h4>
+          <div class="form-row">
+            <div class="form-group">
+              <label>Stat 1 Value & Label</label>
+              <input type="text" id="aboutFormStat1Num" class="form-control" placeholder="4+" required />
+              <input type="text" id="aboutFormStat1Label" class="form-control" placeholder="Years Learning Tech" style="margin-top: 5px;" required />
+            </div>
+            <div class="form-group">
+              <label>Stat 2 Value & Label</label>
+              <input type="text" id="aboutFormStat2Num" class="form-control" placeholder="7+" required />
+              <input type="text" id="aboutFormStat2Label" class="form-control" placeholder="Projects Delivered" style="margin-top: 5px;" required />
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label>Stat 3 Value & Label</label>
+              <input type="text" id="aboutFormStat3Num" class="form-control" placeholder="DEPI" required />
+              <input type="text" id="aboutFormStat3Label" class="form-control" placeholder="Angular Scholar" style="margin-top: 5px;" required />
+            </div>
+            <div class="form-group">
+              <label>Stat 4 Value & Label</label>
+              <input type="text" id="aboutFormStat4Num" class="form-control" placeholder="100%" required />
+              <input type="text" id="aboutFormStat4Label" class="form-control" placeholder="Dedication & Quality" style="margin-top: 5px;" required />
+            </div>
+          </div>
+
+          <div style="display: flex; gap: 12px; margin-top: 10px;">
+            <button type="submit" class="btn btn-primary" style="flex: 1; justify-content: center;">Save Changes</button>
+            <button type="button" class="btn btn-outline" onclick="closeAllModals()">Cancel</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- 6. ADD / EDIT EXPERIENCE MODAL -->
+    <div class="modal-overlay" id="expFormModal">
+      <div class="modal-box" style="max-width: 600px; padding: 30px;">
+        <button class="modal-close-btn" onclick="closeAllModals()">&times;</button>
+        <h3 id="expFormTitle" style="font-size: 20px; color: #fff; margin-bottom: 20px;">Experience</h3>
+        <form id="expForm" class="contact-form">
+          <input type="hidden" id="editExpId" />
+          <div class="form-row">
+            <div class="form-group">
+              <label>Job Title / Role *</label>
+              <input type="text" id="expRole" class="form-control" placeholder="Frontend Web Developer" required />
+            </div>
+            <div class="form-group">
+              <label>Company / Organization *</label>
+              <input type="text" id="expCompany" class="form-control" placeholder="Kernel Panic IT Team" required />
+            </div>
+          </div>
+          <div class="form-group">
+            <label>Date / Period *</label>
+            <input type="text" id="expDate" class="form-control" placeholder="2026 or 2025 – Present" required />
+          </div>
+          <div class="form-group">
+            <label>Bullet Points (one bullet per line) *</label>
+            <textarea id="expBullets" class="form-control" rows="4" placeholder="Designed and built official website...&#10;Collaborated in agile team..." required></textarea>
+          </div>
+          <div style="display: flex; gap: 12px; margin-top: 10px;">
+            <button type="submit" class="btn btn-primary" style="flex: 1; justify-content: center;">Save Experience</button>
+            <button type="button" class="btn btn-outline" onclick="closeAllModals()">Cancel</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- 7. ADD / EDIT EDUCATION MODAL -->
+    <div class="modal-overlay" id="eduFormModal">
+      <div class="modal-box" style="max-width: 600px; padding: 30px;">
+        <button class="modal-close-btn" onclick="closeAllModals()">&times;</button>
+        <h3 id="eduFormTitle" style="font-size: 20px; color: #fff; margin-bottom: 20px;">Education</h3>
+        <form id="eduForm" class="contact-form">
+          <input type="hidden" id="editEduId" />
+          <div class="form-group">
+            <label>Degree / Certificate Title *</label>
+            <input type="text" id="eduDegree" class="form-control" placeholder="Bachelor of Information Technology" required />
+          </div>
+          <div class="form-group">
+            <label>Institution / University *</label>
+            <input type="text" id="eduInstitution" class="form-control" placeholder="Assiut International Technological University (AITU)" required />
+          </div>
+          <div class="form-group">
+            <label>Timeline / Dates *</label>
+            <input type="text" id="eduDate" class="form-control" placeholder="2023 – 2027 (Expected)" required />
+          </div>
+          <div class="form-group">
+            <label>Description / Specialization *</label>
+            <textarea id="eduDesc" class="form-control" rows="3" placeholder="Specializing in Software Development, Web Architectures..." required></textarea>
+          </div>
+          <div style="display: flex; gap: 12px; margin-top: 10px;">
+            <button type="submit" class="btn btn-primary" style="flex: 1; justify-content: center;">Save Education</button>
+            <button type="button" class="btn btn-outline" onclick="closeAllModals()">Cancel</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- 8. ADD / EDIT SKILL CATEGORY MODAL -->
+    <div class="modal-overlay" id="skillFormModal">
+      <div class="modal-box" style="max-width: 600px; padding: 30px;">
+        <button class="modal-close-btn" onclick="closeAllModals()">&times;</button>
+        <h3 id="skillFormTitle" style="font-size: 20px; color: #fff; margin-bottom: 20px;">Skill Category</h3>
+        <form id="skillForm" class="contact-form">
+          <input type="hidden" id="editSkillId" />
+          <div class="form-row">
+            <div class="form-group">
+              <label>Category Title *</label>
+              <input type="text" id="skillTitle" class="form-control" placeholder="Frontend Development" required />
+            </div>
+            <div class="form-group">
+              <label>FontAwesome Icon Class *</label>
+              <input type="text" id="skillIcon" class="form-control" placeholder="fa-laptop-code" required />
+            </div>
+          </div>
+          <div class="form-group">
+            <label>Skill Pills (comma separated) *</label>
+            <input type="text" id="skillPills" class="form-control" placeholder="Angular, TypeScript, HTML5, CSS3, C++" required />
+          </div>
+          <div class="form-group">
+            <label>Featured/Highlighted Skills (comma separated)</label>
+            <input type="text" id="skillFeatured" class="form-control" placeholder="Angular, TypeScript" />
+          </div>
+          <div style="display: flex; gap: 12px; margin-top: 10px;">
+            <button type="submit" class="btn btn-primary" style="flex: 1; justify-content: center;">Save Category</button>
+            <button type="button" class="btn btn-outline" onclick="closeAllModals()">Cancel</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- 9. EDIT CONTACT INFO MODAL -->
+    <div class="modal-overlay" id="contactFormModal">
+      <div class="modal-box" style="max-width: 550px; padding: 30px;">
+        <button class="modal-close-btn" onclick="closeAllModals()">&times;</button>
+        <h3 style="font-size: 20px; color: #fff; margin-bottom: 20px;"><i class="fas fa-edit"></i> Edit Contact Info</h3>
+        <form id="contactEditForm" class="contact-form">
+          <div class="form-group">
+            <label>Email Address</label>
+            <input type="email" id="contactFormEmail" class="form-control" required />
+          </div>
+          <div class="form-group">
+            <label>Phone / WhatsApp Number</label>
+            <input type="text" id="contactFormPhone" class="form-control" required />
+          </div>
+          <div class="form-group">
+            <label>Location</label>
+            <input type="text" id="contactFormLocation" class="form-control" required />
+          </div>
+          <div class="form-group">
+            <label>GitHub Profile URL</label>
+            <input type="url" id="contactFormGithub" class="form-control" required />
+          </div>
+          <div style="display: flex; gap: 12px; margin-top: 10px;">
+            <button type="submit" class="btn btn-primary" style="flex: 1; justify-content: center;">Save Contact Details</button>
+            <button type="button" class="btn btn-outline" onclick="closeAllModals()">Cancel</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- 10. ADD / EDIT PROJECT MODAL -->
     <div class="modal-overlay" id="projectFormModal">
       <div class="modal-box" style="max-width: 650px; padding: 30px;">
         <button class="modal-close-btn" onclick="closeAllModals()">&times;</button>
@@ -630,7 +742,7 @@
       </div>
     </div>
 
-    <!-- 5. ADD / EDIT CERTIFICATE MODAL -->
+    <!-- 11. ADD / EDIT CERTIFICATE MODAL -->
     <div class="modal-overlay" id="certFormModal">
       <div class="modal-box" style="max-width: 550px; padding: 30px;">
         <button class="modal-close-btn" onclick="closeAllModals()">&times;</button>
@@ -676,7 +788,7 @@
       </div>
     </div>
 
-    <!-- 6. TOAST NOTIFICATION -->
+    <!-- 12. TOAST NOTIFICATION -->
     <div class="toast-box" id="toastNotification">
       <i class="fas fa-check-circle"></i>
       <span>Notification</span>
