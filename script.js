@@ -283,19 +283,20 @@ const STORAGE_KEYS = {
 };
 
 let activeFirebaseConfig = {
-  apiKey: "",
-  authDomain: "",
-  projectId: "",
-  storageBucket: "",
-  messagingSenderId: "",
-  appId: ""
+  apiKey: "AIzaSyCr4K7Ousf9R9Tn6jPNVgwTb0P4IMQt46s",
+  authDomain: "portfolio-36ac2.firebaseapp.com",
+  projectId: "portfolio-36ac2",
+  storageBucket: "portfolio-36ac2.firebasestorage.app",
+  messagingSenderId: "5745865963",
+  appId: "1:5745865963:web:98b6d2573b8df292d47aae",
+  measurementId: "G-RXYCPDZTSZ"
 };
 
 let db = null;
 
-function initFirebase() {
+async function initFirebase() {
   const localConfig = getStoredItem(STORAGE_KEYS.FIREBASE, null);
-  const cfg = localConfig || activeFirebaseConfig;
+  const cfg = (localConfig && localConfig.apiKey) ? localConfig : activeFirebaseConfig;
 
   if (cfg && cfg.apiKey && cfg.projectId && typeof firebase !== "undefined") {
     try {
@@ -304,10 +305,46 @@ function initFirebase() {
       }
       db = firebase.firestore();
       console.log("Firebase Firestore connected successfully!");
+      
+      // Auto seed initial data if cloud is empty
+      syncInitialDataToCloudIfEmpty();
+      
+      // Real-time live listener for all visitors & devices
       listenToCloudUpdates();
     } catch (err) {
       console.warn("Firebase initialization notice:", err);
     }
+  }
+}
+
+async function syncInitialDataToCloudIfEmpty() {
+  if (!db) return;
+  const sections = [
+    { key: STORAGE_KEYS.HERO, doc: "mariem_portfolio_hero", fallback: defaultHero },
+    { key: STORAGE_KEYS.ABOUT, doc: "mariem_portfolio_about", fallback: defaultAbout },
+    { key: STORAGE_KEYS.EXP, doc: "mariem_portfolio_exp", fallback: defaultExperience },
+    { key: STORAGE_KEYS.EDU, doc: "mariem_portfolio_edu", fallback: defaultEducation },
+    { key: STORAGE_KEYS.SKILLS, doc: "mariem_portfolio_skills", fallback: defaultSkills },
+    { key: STORAGE_KEYS.PROJECTS, doc: "mariem_portfolio_projects", fallback: defaultProjects },
+    { key: STORAGE_KEYS.CERTS, doc: "mariem_portfolio_certs", fallback: defaultCertificates },
+    { key: STORAGE_KEYS.CONTACT, doc: "mariem_portfolio_contact", fallback: defaultContact }
+  ];
+
+  try {
+    const testDoc = await db.collection("portfolio_data").doc("mariem_portfolio_projects").get();
+    if (!testDoc.exists) {
+      console.log("Seeding initial portfolio data to Firestore...");
+      for (const s of sections) {
+        const val = getStoredItem(s.key, s.fallback);
+        await db.collection("portfolio_data").doc(s.doc).set({
+          data: val,
+          updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+        });
+      }
+      console.log("Initial Firestore cloud sync complete!");
+    }
+  } catch (e) {
+    console.warn("Firestore seeding check:", e);
   }
 }
 
