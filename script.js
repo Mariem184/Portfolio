@@ -30,7 +30,7 @@ const defaultAbout = {
   stat1Num: "4+", stat1Label: "Years Learning Tech",
   stat2Num: "7+", stat2Label: "Projects Delivered",
   stat3Num: "DEPI", stat3Label: "Angular Scholar",
-  stat4Num: "7+", stat4Label: "Certificates Earned"
+  stat4Num: "7+", stat4Label: "Certificates"
 };
 
 const defaultExperience = [
@@ -335,7 +335,11 @@ async function syncInitialDataToCloudIfEmpty() {
     if (!testDoc.exists) {
       console.log("Seeding initial portfolio data to Firestore...");
       for (const s of sections) {
-        const val = getStoredItem(s.key, s.fallback);
+        let val = getStoredItem(s.key, s.fallback);
+        if (s.key === STORAGE_KEYS.ABOUT && (val.stat4Num === "100%" || val.stat4Label === "Dedication & Quality" || val.stat4Label === "Dedication &amp; Quality")) {
+          val.stat4Num = "7+";
+          val.stat4Label = "Certificates";
+        }
         await db.collection("portfolio_data").doc(s.doc).set({
           data: val,
           updatedAt: firebase.firestore.FieldValue.serverTimestamp()
@@ -373,6 +377,9 @@ async function saveItem(key, data) {
       console.log(`Cloud sync success for ${docName}`);
     } catch (err) {
       console.warn("Cloud sync error:", err);
+      if (err.code === "permission-denied") {
+        showToast("تنبيه: Firebase يرفض الكتابة. تأكدي من تفعيل Rules في فايربيس", "fa-exclamation-triangle");
+      }
     }
   }
 }
@@ -392,6 +399,10 @@ function listenToCloudUpdates() {
 
   sections.forEach(sec => {
     db.collection("portfolio_data").doc(sec.doc).onSnapshot(snapshot => {
+      // Don't overwrite local changes while a write is still pending
+      if (snapshot.metadata && snapshot.metadata.hasPendingWrites) {
+        return;
+      }
       if (snapshot.exists) {
         const cloudData = snapshot.data();
         if (cloudData && cloudData.data) {
@@ -460,6 +471,11 @@ function renderHero() {
 // 2. Render About
 function renderAbout() {
   const about = getStoredItem(STORAGE_KEYS.ABOUT, defaultAbout);
+  if (about.stat4Num === "100%" || about.stat4Label === "Dedication & Quality" || about.stat4Label === "Dedication &amp; Quality" || about.stat4Label === "Certificates Earned") {
+    about.stat4Num = "7+";
+    about.stat4Label = "Certificates";
+    saveItem(STORAGE_KEYS.ABOUT, about);
+  }
   const p1 = document.getElementById("aboutP1");
   const p2 = document.getElementById("aboutP2");
   const p3 = document.getElementById("aboutP3");
