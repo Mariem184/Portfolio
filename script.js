@@ -953,22 +953,57 @@ document.addEventListener("DOMContentLoaded", function () {
     }
   });
   
-  // 5. Mobile Menu Toggle
+  // 5. Navigation Links & Active Underline Handling
   const mobileToggle = document.getElementById("mobile-menu");
   const navLinks = document.querySelector(".nav-links");
+  const allNavAnchors = document.querySelectorAll(".nav-links a");
+  
+  if (allNavAnchors.length > 0) {
+    allNavAnchors.forEach(link => {
+      link.addEventListener("click", function () {
+        if (mobileToggle) mobileToggle.classList.remove("is-active");
+        if (navLinks) navLinks.classList.remove("active");
+        
+        allNavAnchors.forEach(a => a.classList.remove("active"));
+        this.classList.add("active");
+      });
+    });
+  }
+
   if (mobileToggle && navLinks) {
     mobileToggle.addEventListener("click", () => {
       mobileToggle.classList.toggle("is-active");
       navLinks.classList.toggle("active");
     });
-    
-    navLinks.querySelectorAll("a").forEach(link => {
-      link.addEventListener("click", () => {
-        mobileToggle.classList.remove("is-active");
-        navLinks.classList.remove("active");
-      });
-    });
   }
+
+  // ScrollSpy: Automatically update active nav link as user scrolls
+  const allSections = document.querySelectorAll("section[id]");
+  window.addEventListener("scroll", () => {
+    let currentSectionId = "";
+    const scrollPos = window.pageYOffset || document.documentElement.scrollTop;
+
+    allSections.forEach(sec => {
+      const secTop = sec.offsetTop - 140;
+      const secHeight = sec.offsetHeight;
+      if (scrollPos >= secTop && scrollPos < secTop + secHeight) {
+        currentSectionId = sec.getAttribute("id");
+      }
+    });
+
+    if (currentSectionId) {
+      allNavAnchors.forEach(a => {
+        a.classList.remove("active");
+        if (a.getAttribute("href") === `#${currentSectionId}`) {
+          a.classList.add("active");
+        }
+      });
+    } else if (scrollPos < 100) {
+      allNavAnchors.forEach(a => a.classList.remove("active"));
+      const homeLink = document.querySelector('.nav-links a[href="#home"]');
+      if (homeLink) homeLink.classList.add("active");
+    }
+  });
   
   // 6. Typing Animation
   const typingElement = document.querySelector(".typing");
