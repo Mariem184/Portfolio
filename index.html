@@ -48,6 +48,7 @@
     <!-- ================= ADMIN STATUS BAR (VISIBLE ONLY WHEN LOGGED IN) ================= -->
     <div class="admin-bar" id="adminStatusBar">
       <span class="admin-badge"><span class="dot"></span> Admin Mode Active</span>
+      <button class="admin-bar-btn" onclick="openCloudConfigModal()" title="Connect Firebase Cloud Database"><i class="fas fa-cloud"></i> Cloud DB</button>
       <button class="admin-bar-btn" onclick="resetPortfolioData()" title="Reset all data to defaults"><i class="fas fa-undo"></i> Reset All</button>
       <button class="admin-bar-btn" id="adminLogoutBtn" title="Log out from admin mode"><i class="fas fa-sign-out-alt"></i> Logout</button>
     </div>
@@ -788,11 +789,64 @@
       </div>
     </div>
 
+    <!-- 13. CLOUD DATABASE (FIREBASE) MODAL -->
+    <div class="modal-overlay" id="cloudConfigModal">
+      <div class="modal-box" style="max-width: 600px; padding: 30px;">
+        <button class="modal-close-btn" onclick="closeAllModals()">&times;</button>
+        <h3 style="font-size: 20px; color: #fff; margin-bottom: 8px;">
+          <i class="fas fa-cloud" style="color: var(--cyan-primary);"></i> Firebase Cloud Database
+        </h3>
+        <p style="font-size: 13.5px; color: var(--text-muted); margin-bottom: 20px;">
+          Connect Firebase Firestore so all edits you make from any computer or phone sync across all devices in real-time!
+        </p>
+
+        <form id="cloudConfigForm" class="contact-form">
+          <div class="form-group">
+            <label>Firebase API Key *</label>
+            <input type="text" id="fbApiKey" class="form-control" placeholder="AIzaSy..." required />
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label>Project ID *</label>
+              <input type="text" id="fbProjectId" class="form-control" placeholder="mariem-portfolio" required />
+            </div>
+            <div class="form-group">
+              <label>Auth Domain</label>
+              <input type="text" id="fbAuthDomain" class="form-control" placeholder="mariem-portfolio.firebaseapp.com" />
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label>Storage Bucket</label>
+              <input type="text" id="fbStorageBucket" class="form-control" placeholder="mariem-portfolio.appspot.com" />
+            </div>
+            <div class="form-group">
+              <label>App ID</label>
+              <input type="text" id="fbAppId" class="form-control" placeholder="1:123456789:web:abcdef..." />
+            </div>
+          </div>
+
+          <div style="display: flex; gap: 12px; margin-top: 15px;">
+            <button type="submit" class="btn btn-primary" style="flex: 1; justify-content: center;">
+              <i class="fas fa-link"></i> Connect & Sync Cloud
+            </button>
+            <button type="button" class="btn btn-outline" onclick="closeAllModals()">Cancel</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
     <!-- 12. TOAST NOTIFICATION -->
     <div class="toast-box" id="toastNotification">
       <i class="fas fa-check-circle"></i>
       <span>Notification</span>
     </div>
+
+    <!-- Firebase SDK (Firestore Cloud Database) -->
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
 
     <!-- Scripts -->
     <script src="script.js"></script>

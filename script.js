@@ -278,8 +278,38 @@ const STORAGE_KEYS = {
   PROJECTS: "mariem_portfolio_projects_v2",
   CERTS: "mariem_portfolio_certs_v3",
   CONTACT: "mariem_portfolio_contact_v2",
-  AUTH: "mariem_portfolio_admin_logged"
+  AUTH: "mariem_portfolio_admin_logged",
+  FIREBASE: "mariem_portfolio_fb_config"
 };
+
+let activeFirebaseConfig = {
+  apiKey: "",
+  authDomain: "",
+  projectId: "",
+  storageBucket: "",
+  messagingSenderId: "",
+  appId: ""
+};
+
+let db = null;
+
+function initFirebase() {
+  const localConfig = getStoredItem(STORAGE_KEYS.FIREBASE, null);
+  const cfg = localConfig || activeFirebaseConfig;
+
+  if (cfg && cfg.apiKey && cfg.projectId && typeof firebase !== "undefined") {
+    try {
+      if (!firebase.apps.length) {
+        firebase.initializeApp(cfg);
+      }
+      db = firebase.firestore();
+      console.log("Firebase Firestore connected successfully!");
+      listenToCloudUpdates();
+    } catch (err) {
+      console.warn("Firebase initialization notice:", err);
+    }
+  }
+}
 
 function getStoredItem(key, fallback) {
   const data = localStorage.getItem(key);
@@ -294,9 +324,60 @@ function getStoredItem(key, fallback) {
   }
 }
 
-function saveItem(key, data) {
+async function saveItem(key, data) {
   localStorage.setItem(key, JSON.stringify(data));
+  if (db && key !== STORAGE_KEYS.FIREBASE && key !== STORAGE_KEYS.AUTH) {
+    try {
+      const docName = key.replace(/_v\d+$/, "");
+      await db.collection("portfolio_data").doc(docName).set({
+        data: data,
+        updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+      });
+      console.log(`Cloud sync success for ${docName}`);
+    } catch (err) {
+      console.warn("Cloud sync error:", err);
+    }
+  }
 }
+
+function listenToCloudUpdates() {
+  if (!db) return;
+  const sections = [
+    { key: STORAGE_KEYS.HERO, doc: "mariem_portfolio_hero", render: renderHero },
+    { key: STORAGE_KEYS.ABOUT, doc: "mariem_portfolio_about", render: renderAbout },
+    { key: STORAGE_KEYS.EXP, doc: "mariem_portfolio_exp", render: renderExperience },
+    { key: STORAGE_KEYS.EDU, doc: "mariem_portfolio_edu", render: renderEducation },
+    { key: STORAGE_KEYS.SKILLS, doc: "mariem_portfolio_skills", render: renderSkills },
+    { key: STORAGE_KEYS.PROJECTS, doc: "mariem_portfolio_projects", render: renderProjects },
+    { key: STORAGE_KEYS.CERTS, doc: "mariem_portfolio_certs", render: renderCertificates },
+    { key: STORAGE_KEYS.CONTACT, doc: "mariem_portfolio_contact", render: renderContact }
+  ];
+
+  sections.forEach(sec => {
+    db.collection("portfolio_data").doc(sec.doc).onSnapshot(snapshot => {
+      if (snapshot.exists) {
+        const cloudData = snapshot.data();
+        if (cloudData && cloudData.data) {
+          localStorage.setItem(sec.key, JSON.stringify(cloudData.data));
+          sec.render();
+        }
+      }
+    }, err => {
+      console.warn(`Realtime listener for ${sec.doc}:`, err);
+    });
+  });
+}
+
+window.openCloudConfigModal = function() {
+  const currentCfg = getStoredItem(STORAGE_KEYS.FIREBASE, activeFirebaseConfig);
+  document.getElementById("fbApiKey").value = currentCfg.apiKey || "";
+  document.getElementById("fbProjectId").value = currentCfg.projectId || "";
+  document.getElementById("fbAuthDomain").value = currentCfg.authDomain || "";
+  document.getElementById("fbStorageBucket").value = currentCfg.storageBucket || "";
+  document.getElementById("fbAppId").value = currentCfg.appId || "";
+  document.getElementById("cloudConfigModal").classList.add("active");
+  document.body.style.overflow = "hidden";
+};
 
 // ================= ADMIN AUTH =================
 function isAdminLoggedIn() {
@@ -937,6 +1018,9 @@ document.addEventListener("DOMContentLoaded", function () {
   renderCertificates();
   renderContact();
   
+  // Initialize Cloud Database if configured
+  initFirebase();
+  
   // 2. Check Admin Session
   if (isAdminLoggedIn()) {
     setAdminSession(true);
@@ -1396,6 +1480,57 @@ document.addEventListener("DOMContentLoaded", function () {
     });
   }
   
+  // Cloud Database Form Submit
+  const cloudForm = document.getElementById("cloudConfigForm");
+  if (cloudForm) {
+    cloudForm.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const cfg = {
+        apiKey: document.getElementById("fbApiKey").value.trim(),
+        projectId: document.getElementById("fbProjectId").value.trim(),
+        authDomain: document.getElementById("fbAuthDomain").value.trim() || `${document.getElementById("fbProjectId").value.trim()}.firebaseapp.com`,
+        storageBucket: document.getElementById("fbStorageBucket").value.trim() || `${document.getElementById("fbProjectId").value.trim()}.appspot.com`,
+        appId: document.getElementById("fbAppId").value.trim()
+      };
+      
+      saveItem(STORAGE_KEYS.FIREBASE, cfg);
+      showToast("Connecting to Firebase Cloud...", "fa-spinner fa-spin");
+      
+      try {
+        if (!firebase.apps.length) {
+          firebase.initializeApp(cfg);
+        }
+        db = firebase.firestore();
+        
+        // Push all current local data to Firebase Cloud so it's initialized
+        const initialSections = [
+          { key: STORAGE_KEYS.HERO, doc: "mariem_portfolio_hero", fallback: defaultHero },
+          { key: STORAGE_KEYS.ABOUT, doc: "mariem_portfolio_about", fallback: defaultAbout },
+          { key: STORAGE_KEYS.EXP, doc: "mariem_portfolio_exp", fallback: defaultExperience },
+          { key: STORAGE_KEYS.EDU, doc: "mariem_portfolio_edu", fallback: defaultEducation },
+          { key: STORAGE_KEYS.SKILLS, doc: "mariem_portfolio_skills", fallback: defaultSkills },
+          { key: STORAGE_KEYS.PROJECTS, doc: "mariem_portfolio_projects", fallback: defaultProjects },
+          { key: STORAGE_KEYS.CERTS, doc: "mariem_portfolio_certs", fallback: defaultCertificates },
+          { key: STORAGE_KEYS.CONTACT, doc: "mariem_portfolio_contact", fallback: defaultContact }
+        ];
+
+        for (const s of initialSections) {
+          const localVal = getStoredItem(s.key, s.fallback);
+          await db.collection("portfolio_data").doc(s.doc).set({
+            data: localVal,
+            updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+          });
+        }
+        
+        listenToCloudUpdates();
+        closeAllModals();
+        showToast("Connected to Firebase & Cloud Synced!", "fa-cloud-upload-alt");
+      } catch (err) {
+        alert("Firebase error: " + err.message);
+      }
+    });
+  }
+
   // Public Message Form Submission
   const contactForm = document.getElementById("contactForm");
   if (contactForm) {
