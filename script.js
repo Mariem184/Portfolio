@@ -30,7 +30,7 @@ const defaultAbout = {
   stat1Num: "4+", stat1Label: "Years Learning Tech",
   stat2Num: "7+", stat2Label: "Projects Delivered",
   stat3Num: "DEPI", stat3Label: "Angular Scholar",
-  stat4Num: "100%", stat4Label: "Dedication & Quality"
+  stat4Num: "7+", stat4Label: "Certificates Earned"
 };
 
 const defaultExperience = [
@@ -271,7 +271,7 @@ const defaultContact = {
 // ================= STORAGE HELPERS =================
 const STORAGE_KEYS = {
   HERO: "mariem_portfolio_hero_v2",
-  ABOUT: "mariem_portfolio_about_v2",
+  ABOUT: "mariem_portfolio_about_v3",
   EXP: "mariem_portfolio_exp_v2",
   EDU: "mariem_portfolio_edu_v2",
   SKILLS: "mariem_portfolio_skills_v2",
