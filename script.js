@@ -365,7 +365,51 @@ function getStoredItem(key, fallback) {
   }
 }
 
+// Image Auto-Compression Helper to keep Firestore documents lightweight (<50KB)
+function compressImageFile(file, maxWidth = 900, maxHeight = 900, quality = 0.75) {
+  return new Promise((resolve) => {
+    if (!file) return resolve("");
+    if (file.size < 60 * 1024) {
+      const reader = new FileReader();
+      reader.onload = (e) => resolve(e.target.result);
+      reader.onerror = () => resolve("");
+      reader.readAsDataURL(file);
+      return;
+    }
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      const img = new Image();
+      img.onload = () => {
+        let width = img.width;
+        let height = img.height;
+        if (width > maxWidth || height > maxHeight) {
+          if (width > height) {
+            height = Math.round((height * maxWidth) / width);
+            width = maxWidth;
+          } else {
+            width = Math.round((width * maxHeight) / height);
+            height = maxHeight;
+          }
+        }
+        const canvas = document.createElement("canvas");
+        canvas.width = width;
+        canvas.height = height;
+        const ctx = canvas.getContext("2d");
+        ctx.drawImage(img, 0, 0, width, height);
+        resolve(canvas.toDataURL("image/jpeg", quality));
+      };
+      img.onerror = () => resolve(e.target.result);
+      img.src = e.target.result;
+    };
+    reader.onerror = () => resolve("");
+    reader.readAsDataURL(file);
+  });
+}
+
+const localSaveTimestamps = {};
+
 async function saveItem(key, data) {
+  localSaveTimestamps[key] = Date.now();
   localStorage.setItem(key, JSON.stringify(data));
   if (db && key !== STORAGE_KEYS.FIREBASE && key !== STORAGE_KEYS.AUTH) {
     try {
@@ -379,6 +423,8 @@ async function saveItem(key, data) {
       console.warn("Cloud sync error:", err);
       if (err.code === "permission-denied") {
         showToast("تنبيه: Firebase يرفض الكتابة. تأكدي من تفعيل Rules في فايربيس", "fa-exclamation-triangle");
+      } else if (err.message && err.message.includes("exceeds the maximum")) {
+        showToast("حجم الصورة كبير جداً، يرجى اختيار صورة أصغر", "fa-exclamation-triangle");
       }
     }
   }
@@ -401,6 +447,11 @@ function listenToCloudUpdates() {
     db.collection("portfolio_data").doc(sec.doc).onSnapshot(snapshot => {
       // Don't overwrite local changes while a write is still pending
       if (snapshot.metadata && snapshot.metadata.hasPendingWrites) {
+        return;
+      }
+      // If user recently made a local edit within the last 20 seconds, protect local data
+      const lastSave = localSaveTimestamps[sec.key] || 0;
+      if (Date.now() - lastSave < 20000) {
         return;
       }
       if (snapshot.exists) {
@@ -1427,17 +1478,15 @@ document.addEventListener("DOMContentLoaded", function () {
   // Project Form Image File Upload Reader
   const projFileInput = document.getElementById("projFileInput");
   if (projFileInput) {
-    projFileInput.addEventListener("change", function(e) {
+    projFileInput.addEventListener("change", async function(e) {
       const file = e.target.files[0];
       if (file) {
-        const reader = new FileReader();
-        reader.onload = function(evt) {
-          document.getElementById("projImageUrl").value = evt.target.result;
-          const preview = document.getElementById("projImgPreview");
-          preview.src = evt.target.result;
-          preview.style.display = "block";
-        };
-        reader.readAsDataURL(file);
+        showToast("Compressing image for fast upload...", "fa-image");
+        const compressed = await compressImageFile(file, 900, 900, 0.75);
+        document.getElementById("projImageUrl").value = compressed;
+        const preview = document.getElementById("projImgPreview");
+        preview.src = compressed;
+        preview.style.display = "block";
       }
     });
   }
@@ -1486,17 +1535,15 @@ document.addEventListener("DOMContentLoaded", function () {
   // Certificate Form Image File Upload Reader
   const certFileInput = document.getElementById("certFileInput");
   if (certFileInput) {
-    certFileInput.addEventListener("change", function(e) {
+    certFileInput.addEventListener("change", async function(e) {
       const file = e.target.files[0];
       if (file) {
-        const reader = new FileReader();
-        reader.onload = function(evt) {
-          document.getElementById("certImageUrl").value = evt.target.result;
-          const preview = document.getElementById("certImgPreview");
-          preview.src = evt.target.result;
-          preview.style.display = "block";
-        };
-        reader.readAsDataURL(file);
+        showToast("Compressing certificate image...", "fa-image");
+        const compressed = await compressImageFile(file, 900, 900, 0.75);
+        document.getElementById("certImageUrl").value = compressed;
+        const preview = document.getElementById("certImgPreview");
+        preview.src = compressed;
+        preview.style.display = "block";
       }
     });
   }
