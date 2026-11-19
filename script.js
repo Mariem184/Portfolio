@@ -675,7 +675,7 @@ function renderContact() {
 // ================= CAROUSEL AUTO-SCROLL MANAGER =================
 const carouselInstances = {};
 
-function setupCarousel(viewportId, trackId, prevBtnId, nextBtnId, speed = 0.8) {
+function setupCarousel(viewportId, trackId, prevBtnId, nextBtnId, speed = 1.35) {
   const viewport = document.getElementById(viewportId);
   const track = document.getElementById(trackId);
   const prevBtn = document.getElementById(prevBtnId);
@@ -690,6 +690,34 @@ function setupCarousel(viewportId, trackId, prevBtnId, nextBtnId, speed = 0.8) {
     }
   }
 
+  // Remove existing clones before measuring
+  track.querySelectorAll(".carousel-clone").forEach(el => el.remove());
+
+  const originalCards = Array.from(track.children);
+  if (originalCards.length === 0) return;
+
+  // Calculate width of one full set of cards including gap
+  const sampleCard = originalCards[0];
+  const cardWidth = sampleCard.offsetWidth || (viewportId.includes("proj") ? 360 : 340);
+  const gap = 25;
+  const singleSetWidth = originalCards.length * (cardWidth + gap);
+
+  // Clone original items to create a continuous, endless loop
+  originalCards.forEach(card => {
+    const clone = card.cloneNode(true);
+    clone.classList.add("carousel-clone");
+    track.appendChild(clone);
+  });
+
+  // If set is narrower than screen, add one more set so there's always plenty of track
+  if (singleSetWidth < viewport.clientWidth * 1.5) {
+    originalCards.forEach(card => {
+      const clone = card.cloneNode(true);
+      clone.classList.add("carousel-clone");
+      track.appendChild(clone);
+    });
+  }
+
   const state = {
     isPaused: false,
     pauseTimeout: null,
@@ -701,14 +729,13 @@ function setupCarousel(viewportId, trackId, prevBtnId, nextBtnId, speed = 0.8) {
   };
   carouselInstances[viewportId] = state;
 
+  // Seamless Infinite Looping Frame
   function step() {
     if (!state.isPaused && !state.isDown) {
-      const maxScroll = viewport.scrollWidth - viewport.clientWidth;
-      if (maxScroll > 10) {
-        viewport.scrollLeft += speed;
-        if (viewport.scrollLeft >= maxScroll - 1) {
-          viewport.scrollLeft = 0;
-        }
+      viewport.scrollLeft += speed;
+      // When reaching one full set width, seamless wrap back to 0 without jumping
+      if (viewport.scrollLeft >= singleSetWidth) {
+        viewport.scrollLeft -= singleSetWidth;
       }
     }
     state.animId = requestAnimationFrame(step);
@@ -719,7 +746,7 @@ function setupCarousel(viewportId, trackId, prevBtnId, nextBtnId, speed = 0.8) {
   if (!viewport._carouselEventsBound) {
     viewport._carouselEventsBound = true;
 
-    // Hover pauses auto-scroll
+    // Hover pauses auto-scroll immediately
     viewport.addEventListener("mouseenter", () => {
       if (carouselInstances[viewportId]) carouselInstances[viewportId].isPaused = true;
     });
@@ -739,7 +766,7 @@ function setupCarousel(viewportId, trackId, prevBtnId, nextBtnId, speed = 0.8) {
         if (carouselInstances[viewportId].pauseTimeout) clearTimeout(carouselInstances[viewportId].pauseTimeout);
         carouselInstances[viewportId].pauseTimeout = setTimeout(() => {
           if (carouselInstances[viewportId]) carouselInstances[viewportId].isPaused = false;
-        }, 3000);
+        }, 2500);
       }
     }, { passive: true });
 
@@ -761,7 +788,7 @@ function setupCarousel(viewportId, trackId, prevBtnId, nextBtnId, speed = 0.8) {
         if (inst.pauseTimeout) clearTimeout(inst.pauseTimeout);
         inst.pauseTimeout = setTimeout(() => {
           if (inst) inst.isPaused = false;
-        }, 2500);
+        }, 2000);
       }
     });
 
@@ -773,6 +800,14 @@ function setupCarousel(viewportId, trackId, prevBtnId, nextBtnId, speed = 0.8) {
       const x = e.pageX - viewport.offsetLeft;
       const walk = (x - inst.startX) * 1.5;
       viewport.scrollLeft = inst.scrollLeftStart - walk;
+
+      if (viewport.scrollLeft >= singleSetWidth) {
+        viewport.scrollLeft -= singleSetWidth;
+        inst.scrollLeftStart -= singleSetWidth;
+      } else if (viewport.scrollLeft < 0) {
+        viewport.scrollLeft += singleSetWidth;
+        inst.scrollLeftStart += singleSetWidth;
+      }
     });
 
     // Arrow Buttons
@@ -783,10 +818,13 @@ function setupCarousel(viewportId, trackId, prevBtnId, nextBtnId, speed = 0.8) {
         if (inst) {
           inst.isPaused = true;
           if (inst.pauseTimeout) clearTimeout(inst.pauseTimeout);
-          inst.pauseTimeout = setTimeout(() => { if (inst) inst.isPaused = false; }, 4000);
+          inst.pauseTimeout = setTimeout(() => { if (inst) inst.isPaused = false; }, 3500);
         }
         const card = track.querySelector(".project-card, .cert-card");
-        const amount = card ? (card.offsetWidth + 25) : 380;
+        const amount = card ? (card.offsetWidth + 25) : 385;
+        if (viewport.scrollLeft <= 10) {
+          viewport.scrollLeft += singleSetWidth;
+        }
         viewport.scrollBy({ left: -amount, behavior: "smooth" });
       });
     }
@@ -798,11 +836,16 @@ function setupCarousel(viewportId, trackId, prevBtnId, nextBtnId, speed = 0.8) {
         if (inst) {
           inst.isPaused = true;
           if (inst.pauseTimeout) clearTimeout(inst.pauseTimeout);
-          inst.pauseTimeout = setTimeout(() => { if (inst) inst.isPaused = false; }, 4000);
+          inst.pauseTimeout = setTimeout(() => { if (inst) inst.isPaused = false; }, 3500);
         }
         const card = track.querySelector(".project-card, .cert-card");
-        const amount = card ? (card.offsetWidth + 25) : 380;
+        const amount = card ? (card.offsetWidth + 25) : 385;
         viewport.scrollBy({ left: amount, behavior: "smooth" });
+        setTimeout(() => {
+          if (viewport.scrollLeft >= singleSetWidth) {
+            viewport.scrollLeft -= singleSetWidth;
+          }
+        }, 450);
       });
     }
   }
@@ -835,6 +878,7 @@ function renderProjects(filter = "all") {
     const card = document.createElement("div");
     card.className = "project-card";
     card.setAttribute("data-id", project.id);
+    card.setAttribute("onclick", `if(!event.target.closest('.card-admin-actions') && !event.target.closest('.btn-card-details')) openProjectModal('${project.id}')`);
     
     const tagsHtml = project.techStack.map(t => `<span class="tech-tag">${t}</span>`).join("");
     const galleryCount = (Array.isArray(project.gallery) ? project.gallery.length : 0);
@@ -867,16 +911,11 @@ function renderProjects(filter = "all") {
       </div>
     `;
     
-    card.addEventListener("click", (e) => {
-      if (e.target.closest(".card-admin-actions") || e.target.closest(".btn-card-details")) return;
-      openProjectModal(project.id);
-    });
-    
     grid.appendChild(card);
   });
 
-  // Activate Smooth Continuous Auto-Scroll Carousel
-  setupCarousel("projectsViewport", "projectsGrid", "projPrevBtn", "projNextBtn", 0.75);
+  // Activate Smooth Continuous Auto-Scroll Carousel with faster speed and seamless infinite loop
+  setupCarousel("projectsViewport", "projectsGrid", "projPrevBtn", "projNextBtn", 1.35);
 }
 
 // 8. Render Certificates (Horizontal Auto-Moving Carousel)
@@ -920,8 +959,8 @@ function renderCertificates() {
     grid.appendChild(card);
   });
 
-  // Activate Smooth Continuous Auto-Scroll Carousel
-  setupCarousel("certsViewport", "certsGrid", "certsPrevBtn", "certsNextBtn", 0.75);
+  // Activate Smooth Continuous Auto-Scroll Carousel with faster speed and seamless infinite loop
+  setupCarousel("certsViewport", "certsGrid", "certsPrevBtn", "certsNextBtn", 1.35);
 }
 
 // ================= PROJECT DETAILS MODAL & GALLERY =================
