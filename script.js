@@ -24,45 +24,49 @@ const defaultHero = {
 };
 
 const defaultAbout = {
-  p1: "I'm <strong>Mariem Mohamed Mahmoud</strong>, a passionate Frontend Web Developer and UI/UX enthusiast currently in my fourth year studying Information Technology at Assiut International Technological University (AITU).",
-  p2: "I specialize in architecting scalable Single Page Applications (SPAs) with <strong>Angular, TypeScript, and RxJS</strong>, while leveraging modern design tools like Figma to transform complex requirements into intuitive, fluid digital experiences.",
-  p3: "With real-world experience building the official company website and web applications at <strong>Kernel Panic</strong>, as well as intensive training in the <strong>Digital Egypt Pioneers Initiative (DEPI)</strong>, I focus on clean component architectures, robust state management, and high-performance cross-device compatibility.",
+  p1: "I'm <strong>Mariem Mohamed Mahmoud</strong>, a passionate Frontend Web Developer specializing in <strong>Angular &amp; TypeScript</strong>, with freelance and client-facing experience, currently in my fourth year studying Information Technology at Assiut International Technological University (AITU).",
+  p2: "Specializes in <strong>Angular, TypeScript, JavaScript (ES6+), HTML5, CSS3, Bootstrap, RESTful APIs, and Clean Architecture</strong>. Delivered 6+ projects, including 3 freelance projects, with extensive experience in Figma-to-Code implementation, responsive web design, and teamwork leadership.",
+  p3: "Completed professional Frontend Development programs at <strong>DEPI, ITI, and NTI</strong>, with leadership experience as a Frontend Developer at <strong>Kernel Panic</strong> and teaching as an <strong>iSchool Coding Instructor</strong> (Digital Egypt Cubs Initiative).",
   stat1Num: "4+", stat1Label: "Years Learning Tech",
   stat2Num: "7+", stat2Label: "Projects Delivered",
   stat3Num: "DEPI", stat3Label: "Angular Scholar",
-  stat4Num: "7+", stat4Label: "Certificates"
+  stat4Num: "10+", stat4Label: "Certificates"
 };
 
 const defaultExperience = [
   {
     id: "exp-kernelpanic",
     role: "Frontend Web Developer",
-    company: "Kernel Panic IT Team",
-    date: "2026",
+    company: "Kernel Panic",
+    date: "Jul – Nov 2026",
     bullets: [
-      "Designed and built the official company website using HTML5, CSS3, and modern JavaScript with fast loading times and full responsiveness.",
-      "Collaborated in an agile team to build client and internal web applications, translating Figma wireframes into modular, reusable frontend components.",
-      "Applied modern web standards, code reviews and Git version control in a collaborative workflow."
+      "Developed and contributed to 6+ web development projects using Angular, TypeScript, HTML5, CSS3, JavaScript, and Bootstrap.",
+      "Led and collaborated with a development team, coordinating tasks, distributing responsibilities, and ensuring smooth project delivery.",
+      "Translated Figma designs and UI prototypes into responsive, reusable, and well-structured frontend components.",
+      "Integrated RESTful APIs and applied Clean Architecture principles to build maintainable and scalable web applications.",
+      "Collaborated with team members throughout the development lifecycle, participating in problem-solving, debugging, and code reviews."
+    ]
+  },
+  {
+    id: "exp-ischool",
+    role: "Coding Instructor (Part-Time)",
+    company: "iSchool — (DECI) Initiative",
+    date: "Aug – Sep 2026",
+    bullets: [
+      "Delivered part-time coding instruction as part of Egypt's national (Digital Egypt Cubs Initiative) programme, run in partnership with ischool.",
+      "Taught foundational and applied concepts across four tracks: Web Development, Mobile Development, Cybersecurity, and Data Science.",
+      "Prepared and delivered hands-on lessons and exercises, mentoring students through practical coding projects."
     ]
   },
   {
     id: "exp-depi",
     role: "Angular Frontend Developer Fellow",
     company: "Digital Egypt Pioneers Initiative (DEPI) - MCIT",
-    date: "2025 / 2026",
+    date: "Nov 2025 – Jul 2026",
     bullets: [
       "Completed intensive government-sponsored training focused on enterprise-scale Single Page Applications (SPAs) with Angular & TypeScript.",
       "Mastered reactive programming with RxJS, modular component-based architecture, client-side routing, and RESTful API integrations.",
       "Built practical e-commerce and management web applications adhering to clean coding standards."
-    ]
-  },
-  {
-    id: "exp-ischool",
-    role: "Instructor",
-    company: "iSchool, 2026 Intake",
-    date: "2026",
-    bullets: [
-      "Taught and mentored students in iSchool's 2026 intake, supporting the next generation of tech leaders."
     ]
   }
 ];
@@ -70,10 +74,10 @@ const defaultExperience = [
 const defaultEducation = [
   {
     id: "edu-aitu",
-    degree: "Bachelor of Information Technology",
+    degree: "Bachelor's Degree in Information Technology",
     institution: "Assiut International Technological University (AITU)",
-    date: "2023 – 2027 (Expected)",
-    description: "Specializing in Software Development, Web Architectures, Database Management Systems, Network Engineering, and Algorithms."
+    date: "2023 – 2027 (InProgress)",
+    description: "Grade: Very Good. Specializing in Software Development, Web Architectures, Database Management Systems, Network Engineering, and Algorithms."
   },
   {
     id: "edu-itec",
@@ -89,29 +93,29 @@ const defaultSkills = [
     id: "skill-frontend",
     title: "Frontend Development",
     icon: "fa-laptop-code",
-    pills: ["Angular", "TypeScript", "JavaScript (ES6+)", "RxJS", "HTML5", "CSS3", "Responsive Design", "Bootstrap", "Tailwind CSS"],
+    pills: ["Angular", "TypeScript", "JavaScript (ES6+)", "RxJS", "HTML5", "CSS3", "Responsive Web Design", "Bootstrap", "Component-Based Architecture", "Clean Architecture", "Performance Optimization", "Accessibility"],
     featured: ["Angular", "TypeScript", "JavaScript (ES6+)"]
   },
   {
     id: "skill-uiux",
-    title: "UI / UX Design",
+    title: "UI / UX & Design",
     icon: "fa-paint-brush",
-    pills: ["Figma", "Wireframing", "Interactive Prototyping", "User Research", "Design Systems", "Mobile-First UI"],
-    featured: ["Figma"]
+    pills: ["Figma", "Wireframing", "Prototyping", "Figma-to-Code", "User Research", "Design Systems", "Mobile-First UI"],
+    featured: ["Figma", "Figma-to-Code"]
   },
   {
     id: "skill-tools",
-    title: "Tools & Core CS",
+    title: "Tools, Backend & Core CS",
     icon: "fa-tools",
-    pills: ["Git & GitHub", "RESTful APIs", "VS Code", "Postman", "SQLite / SQL", "C# & OOP", "C++", "Embedded Systems"],
-    featured: ["Git & GitHub"]
+    pills: ["Git", "GitHub", "Version Control", "Visual Studio", "VS Code", "RESTful APIs", "SQL", "Database Fundamentals", "OOP (C# / C++)", "Data Structures", "Algorithms", "Embedded Systems", "Computer Hardware"],
+    featured: ["Git", "RESTful APIs"]
   },
   {
     id: "skill-soft",
-    title: "Professional Skills",
+    title: "Leadership & Soft Skills",
     icon: "fa-users-cog",
-    pills: ["Problem Solving", "Agile Collaboration", "Continuous Learning", "Code Reviews", "Effective Communication"],
-    featured: []
+    pills: ["Teamwork", "Effective Communication", "Leadership", "Mentoring", "Problem Solving", "Time Management", "Code Reviews"],
+    featured: ["Leadership", "Mentoring", "Problem Solving"]
   }
 ];
 
@@ -204,28 +208,60 @@ const defaultProjects = [
 
 const defaultCertificates = [
   {
-    id: "cert-depi",
+    id: "cert-depi-angular",
     title: "Angular Frontend Development Track",
     issuer: "Digital Egypt Pioneers Initiative (DEPI) - MCIT",
     category: "Angular & Frontend",
     image: "img/nti.png",
-    description: "Intensive training in building enterprise-scale Single Page Applications (SPAs) with Angular, TypeScript, RxJS, RESTful API integration, and modular component architecture."
+    description: "Nov 2025 – Jul 2026 • Intensive training in building enterprise-scale Single Page Applications (SPAs) with Angular, TypeScript, RxJS, RESTful API integration, and modular component architecture."
+  },
+  {
+    id: "cert-depi-english",
+    title: "Business English Track",
+    issuer: "Digital Egypt Pioneers Initiative (DEPI) - MCIT",
+    category: "Communication",
+    image: "img/nti.png",
+    description: "Nov 2025 – Jul 2026 • Professional business communication, workplace English, and technical presentations."
+  },
+  {
+    id: "cert-ischool",
+    title: "Instructor Certificate of Completion",
+    issuer: "iSchool (2026 Intake)",
+    category: "Instruction & Mentorship",
+    image: "img/nti.png",
+    description: "Nov 2026 • Certified Instructor for mentoring students in iSchool's 2026 intake, supporting the next generation of tech leaders."
+  },
+  {
+    id: "cert-cisco-ccst",
+    title: "Technical IT Support (CCST)",
+    issuer: "Cisco Networking Academy",
+    category: "IT Support & Systems",
+    image: "img/cisco-it1.png",
+    description: "Apr 2026 • Cisco Certified Support Technician covering IT support fundamentals, hardware troubleshooting, operating systems, and network diagnostic tools."
   },
   {
     id: "cert-nti",
-    title: "Web Design Specialization",
+    title: "Web Design",
     issuer: "National Telecommunication Institute (NTI)",
     category: "Web Design",
     image: "img/nti.png",
-    description: "Mastering modern web design principles, semantic HTML5, CSS3, responsive layouts, and interactive user interfaces."
+    description: "Aug – Sep 2025 • Mastering modern web design principles, semantic HTML5, CSS3, responsive layouts, and interactive user interfaces."
   },
   {
-    id: "cert-iti-html",
-    title: "HTML5 & CSS3 Specialist",
-    issuer: "Information Technology Institute (ITI)",
-    category: "Frontend Core",
-    image: "img/html & css.jpg",
-    description: "Advanced CSS styling, Flexbox, CSS Grid layouts, media queries, and cross-browser responsive design."
+    id: "cert-cisco-english",
+    title: "English for IT 1 & 2 (CEFR B2)",
+    issuer: "Cisco Networking Academy",
+    category: "Communication",
+    image: "img/cisco-it1.png",
+    description: "Mar 2025 • Professional technical English proficiency for software engineering, international tech documentation, and team communications."
+  },
+  {
+    id: "cert-cisco-ccna",
+    title: "CCNA Networking Fundamentals",
+    issuer: "Cisco Networking Academy",
+    category: "Networking",
+    image: "img/cisco-it2.png",
+    description: "Mar 2025 • Core networking architectures, IP addressing, routing and switching protocols, and network security foundations."
   },
   {
     id: "cert-iti-db",
@@ -233,15 +269,15 @@ const defaultCertificates = [
     issuer: "Information Technology Institute (ITI)",
     category: "Databases",
     image: "img/Database.jpg",
-    description: "Relational database concepts, SQL querying, schema normalization, and data manipulation."
+    description: "Sep 2024 • Relational database concepts, SQL querying, schema normalization, and data manipulation."
   },
   {
-    id: "cert-cisco",
-    title: "English for IT 1 & 2 (CEFR B2)",
-    issuer: "Cisco Networking Academy",
-    category: "Communication",
-    image: "img/nti.png",
-    description: "Professional technical English proficiency for software engineering, international tech documentation, and team communications."
+    id: "cert-iti-html",
+    title: "HTML & CSS Specialist",
+    issuer: "Information Technology Institute (ITI)",
+    category: "Frontend Core",
+    image: "img/html & css.jpg",
+    description: "Feb 2024 • Advanced CSS styling, Flexbox, CSS Grid layouts, media queries, and cross-browser responsive design."
   },
   {
     id: "cert-itida",
@@ -249,15 +285,7 @@ const defaultCertificates = [
     issuer: "ITIDA (InnovEgypt)",
     category: "Innovation",
     image: "img/innovegypt.jpeg",
-    description: "Startup ideation, business model generation, design thinking, and innovative tech venture development."
-  },
-  {
-    id: "cert-ischool",
-    title: "Certificate of Completion, Instructor",
-    issuer: "iSchool (2026 Intake)",
-    category: "Instruction & Mentorship",
-    image: "img/nti.png",
-    description: "Certified Instructor for mentoring students in iSchool's 2026 intake, supporting the next generation of tech leaders."
+    description: "Feb 2022 • Startup ideation, business model generation, design thinking, and innovative tech venture development."
   }
 ];
 
@@ -271,12 +299,12 @@ const defaultContact = {
 // ================= STORAGE HELPERS =================
 const STORAGE_KEYS = {
   HERO: "mariem_portfolio_hero_v2",
-  ABOUT: "mariem_portfolio_about_v3",
-  EXP: "mariem_portfolio_exp_v2",
-  EDU: "mariem_portfolio_edu_v2",
-  SKILLS: "mariem_portfolio_skills_v2",
+  ABOUT: "mariem_portfolio_about_v4",
+  EXP: "mariem_portfolio_exp_v3",
+  EDU: "mariem_portfolio_edu_v3",
+  SKILLS: "mariem_portfolio_skills_v3",
   PROJECTS: "mariem_portfolio_projects_v2",
-  CERTS: "mariem_portfolio_certs_v3",
+  CERTS: "mariem_portfolio_certs_v4",
   CONTACT: "mariem_portfolio_contact_v2",
   AUTH: "mariem_portfolio_admin_logged",
   FIREBASE: "mariem_portfolio_fb_config"
@@ -346,6 +374,29 @@ async function syncInitialDataToCloudIfEmpty() {
         });
       }
       console.log("Initial Firestore cloud sync complete!");
+    } else {
+      // Check if existing cloud exp or certs should be upgraded to match latest CV
+      try {
+        const expDoc = await db.collection("portfolio_data").doc("mariem_portfolio_exp").get();
+        if (!expDoc.exists || (expDoc.data() && expDoc.data().data && expDoc.data().data.length <= 2)) {
+          await db.collection("portfolio_data").doc("mariem_portfolio_exp").set({
+            data: defaultExperience,
+            updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+          });
+          localStorage.setItem(STORAGE_KEYS.EXP, JSON.stringify(defaultExperience));
+        }
+      } catch (e) { console.warn("Cloud exp upgrade check:", e); }
+
+      try {
+        const certDoc = await db.collection("portfolio_data").doc("mariem_portfolio_certs").get();
+        if (!certDoc.exists || (certDoc.data() && certDoc.data().data && certDoc.data().data.length < 10)) {
+          await db.collection("portfolio_data").doc("mariem_portfolio_certs").set({
+            data: defaultCertificates,
+            updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+          });
+          localStorage.setItem(STORAGE_KEYS.CERTS, JSON.stringify(defaultCertificates));
+        }
+      } catch (e) { console.warn("Cloud certs upgrade check:", e); }
     }
   } catch (e) {
     console.warn("Firestore seeding check:", e);
