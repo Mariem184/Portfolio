@@ -262,9 +262,19 @@
         </button>
       </div>
 
-      <!-- Dynamic Projects Container -->
-      <div class="projects-grid" id="projectsGrid">
-        <!-- Rendered by script.js -->
+      <!-- Dynamic Projects Container with Auto-moving Carousel -->
+      <div class="carousel-wrapper projects-carousel-wrapper">
+        <button class="carousel-nav-btn prev" id="projPrevBtn" title="Previous Project" aria-label="Previous">
+          <i class="fas fa-chevron-left"></i>
+        </button>
+        <div class="carousel-viewport" id="projectsViewport">
+          <div class="carousel-track projects-track" id="projectsGrid">
+            <!-- Rendered by script.js -->
+          </div>
+        </div>
+        <button class="carousel-nav-btn next" id="projNextBtn" title="Next Project" aria-label="Next">
+          <i class="fas fa-chevron-right"></i>
+        </button>
       </div>
     </section>
 
@@ -280,9 +290,19 @@
         </button>
       </div>
 
-      <!-- Dynamic Certs Container -->
-      <div class="certs-grid" id="certsGrid">
-        <!-- Rendered by script.js -->
+      <!-- Dynamic Certs Container with Auto-moving Carousel -->
+      <div class="carousel-wrapper certs-carousel-wrapper">
+        <button class="carousel-nav-btn prev" id="certsPrevBtn" title="Previous Certificate" aria-label="Previous">
+          <i class="fas fa-chevron-left"></i>
+        </button>
+        <div class="carousel-viewport" id="certsViewport">
+          <div class="carousel-track certs-track" id="certsGrid">
+            <!-- Rendered by script.js -->
+          </div>
+        </div>
+        <button class="carousel-nav-btn next" id="certsNextBtn" title="Next Certificate" aria-label="Next">
+          <i class="fas fa-chevron-right"></i>
+        </button>
       </div>
     </section>
 
@@ -383,8 +403,23 @@
       <div class="modal-box">
         <button class="modal-close-btn" onclick="closeAllModals()">&times;</button>
         
-        <div class="project-modal-hero">
-          <img id="modalProjectImage" src="" alt="Project Preview" />
+        <div class="project-modal-gallery">
+          <div class="project-modal-hero" id="modalHeroBox" onclick="openLightboxFromModal()">
+            <img id="modalProjectImage" src="" alt="Project Preview" />
+            <button class="modal-gallery-arrow prev" id="modalGalleryPrev" type="button" onclick="event.stopPropagation(); navigateModalGallery(-1)" title="Previous Image">
+              <i class="fas fa-chevron-left"></i>
+            </button>
+            <button class="modal-gallery-arrow next" id="modalGalleryNext" type="button" onclick="event.stopPropagation(); navigateModalGallery(1)" title="Next Image">
+              <i class="fas fa-chevron-right"></i>
+            </button>
+            <span class="modal-gallery-badge" id="modalGalleryBadge">1 / 1</span>
+            <button class="modal-gallery-zoom" id="modalGalleryZoom" type="button" onclick="event.stopPropagation(); openLightboxFromModal()" title="View Full Size">
+              <i class="fas fa-expand"></i> Full Size
+            </button>
+          </div>
+          <div class="project-gallery-strip" id="modalGalleryStrip">
+            <!-- Dynamically populated thumbnails -->
+          </div>
         </div>
 
         <div class="project-modal-body">
@@ -710,14 +745,44 @@
             <input type="text" id="projTechStack" class="form-control" placeholder="Angular, TypeScript, REST APIs, HTML5, CSS3" required />
           </div>
 
+          <!-- Main Primary Image -->
           <div class="form-group">
-            <label>Project Screenshot Image</label>
-            <input type="text" id="projImageUrl" class="form-control" placeholder="img/medistore.png or image URL" style="margin-bottom: 8px;" />
-            <label style="font-size: 12px; color: var(--cyan-primary); cursor: pointer;">
-              <i class="fas fa-upload"></i> Or select image file from computer:
+            <label><i class="fas fa-image" style="color: var(--cyan-primary);"></i> الصورة الأساسية للمشروع (Primary Main Image) *</label>
+            <input type="text" id="projImageUrl" class="form-control" placeholder="img/medistore.png or image URL" style="margin-bottom: 8px;" required />
+            <label style="font-size: 12px; color: var(--cyan-primary); cursor: pointer; display: inline-flex; align-items: center; gap: 6px;">
+              <i class="fas fa-upload"></i> أو اختاري صورة من جهازك (Main):
               <input type="file" id="projFileInput" accept="image/*" style="display: block; margin-top: 5px; font-size: 12px;" />
             </label>
-            <img id="projImgPreview" src="" alt="Preview" style="display:none; max-height: 120px; border-radius: 8px; margin-top: 10px; border: 1px solid var(--border-color);" />
+            <div style="margin-top: 10px;">
+              <img id="projImgPreview" src="" alt="Main Preview" style="display:none; max-height: 130px; border-radius: 8px; border: 2px solid var(--cyan-primary);" />
+            </div>
+          </div>
+
+          <!-- Secondary / Gallery Images -->
+          <div class="form-group form-gallery-box">
+            <label style="color: #fff; font-weight: 600; display: flex; align-items: center; gap: 8px; margin-bottom: 6px;">
+              <i class="fas fa-images" style="color: var(--cyan-primary);"></i> الصور الفرعية الإضافية (Gallery & Sub-Images)
+            </label>
+            <p style="font-size: 12.5px; color: var(--text-muted); margin-bottom: 12px;">
+              الصور دي هتظهر في معرض الصور لما الزائر أو إنتي تضغطي على <strong>View Full Details</strong>.
+            </p>
+            
+            <label style="font-size: 12px; color: var(--cyan-primary); cursor: pointer; display: block; margin-bottom: 10px;">
+              <i class="fas fa-file-upload"></i> رفع صورة أو صور متعددة من الجهاز (تلقائي الضغط):
+              <input type="file" id="projGalleryFileInput" accept="image/*" multiple style="display: block; margin-top: 5px; font-size: 12px;" />
+            </label>
+
+            <div style="display: flex; gap: 8px; align-items: center; margin-top: 8px;">
+              <input type="text" id="projGalleryUrlInput" class="form-control" placeholder="أو اكتبي مسار/رابط صورة فرعية واضغطي إضافة" style="margin-bottom: 0; font-size: 13px;" />
+              <button type="button" id="addGalleryUrlBtn" class="btn btn-outline" style="white-space: nowrap; padding: 10px 16px; font-size: 13px;">
+                <i class="fas fa-plus"></i> إضافة
+              </button>
+            </div>
+
+            <!-- Preview List of Sub-Images -->
+            <div class="gallery-preview-grid" id="projGalleryPreviewContainer">
+              <!-- Dynamically populated thumbnails with delete button -->
+            </div>
           </div>
 
           <div class="form-row">

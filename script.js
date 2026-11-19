@@ -672,8 +672,149 @@ function renderContact() {
 }
 
 // 7. Render Projects
+// ================= CAROUSEL AUTO-SCROLL MANAGER =================
+const carouselInstances = {};
+
+function setupCarousel(viewportId, trackId, prevBtnId, nextBtnId, speed = 0.8) {
+  const viewport = document.getElementById(viewportId);
+  const track = document.getElementById(trackId);
+  const prevBtn = document.getElementById(prevBtnId);
+  const nextBtn = document.getElementById(nextBtnId);
+  if (!viewport || !track) return;
+
+  // Clear previous instance animation
+  if (carouselInstances[viewportId]) {
+    cancelAnimationFrame(carouselInstances[viewportId].animId);
+    if (carouselInstances[viewportId].pauseTimeout) {
+      clearTimeout(carouselInstances[viewportId].pauseTimeout);
+    }
+  }
+
+  const state = {
+    isPaused: false,
+    pauseTimeout: null,
+    animId: null,
+    isDown: false,
+    startX: 0,
+    scrollLeftStart: 0,
+    moved: false
+  };
+  carouselInstances[viewportId] = state;
+
+  function step() {
+    if (!state.isPaused && !state.isDown) {
+      const maxScroll = viewport.scrollWidth - viewport.clientWidth;
+      if (maxScroll > 10) {
+        viewport.scrollLeft += speed;
+        if (viewport.scrollLeft >= maxScroll - 1) {
+          viewport.scrollLeft = 0;
+        }
+      }
+    }
+    state.animId = requestAnimationFrame(step);
+  }
+  state.animId = requestAnimationFrame(step);
+
+  // Attach event listeners only once
+  if (!viewport._carouselEventsBound) {
+    viewport._carouselEventsBound = true;
+
+    // Hover pauses auto-scroll
+    viewport.addEventListener("mouseenter", () => {
+      if (carouselInstances[viewportId]) carouselInstances[viewportId].isPaused = true;
+    });
+    viewport.addEventListener("mouseleave", () => {
+      if (carouselInstances[viewportId] && !carouselInstances[viewportId].isDown) {
+        carouselInstances[viewportId].isPaused = false;
+      }
+    });
+
+    // Touch events for mobile
+    viewport.addEventListener("touchstart", () => {
+      if (carouselInstances[viewportId]) carouselInstances[viewportId].isPaused = true;
+    }, { passive: true });
+    
+    viewport.addEventListener("touchend", () => {
+      if (carouselInstances[viewportId]) {
+        if (carouselInstances[viewportId].pauseTimeout) clearTimeout(carouselInstances[viewportId].pauseTimeout);
+        carouselInstances[viewportId].pauseTimeout = setTimeout(() => {
+          if (carouselInstances[viewportId]) carouselInstances[viewportId].isPaused = false;
+        }, 3000);
+      }
+    }, { passive: true });
+
+    // Drag to scroll with mouse
+    viewport.addEventListener("mousedown", (e) => {
+      const inst = carouselInstances[viewportId];
+      if (!inst) return;
+      inst.isDown = true;
+      inst.moved = false;
+      inst.isPaused = true;
+      inst.startX = e.pageX - viewport.offsetLeft;
+      inst.scrollLeftStart = viewport.scrollLeft;
+    });
+
+    window.addEventListener("mouseup", () => {
+      const inst = carouselInstances[viewportId];
+      if (inst && inst.isDown) {
+        inst.isDown = false;
+        if (inst.pauseTimeout) clearTimeout(inst.pauseTimeout);
+        inst.pauseTimeout = setTimeout(() => {
+          if (inst) inst.isPaused = false;
+        }, 2500);
+      }
+    });
+
+    viewport.addEventListener("mousemove", (e) => {
+      const inst = carouselInstances[viewportId];
+      if (!inst || !inst.isDown) return;
+      e.preventDefault();
+      inst.moved = true;
+      const x = e.pageX - viewport.offsetLeft;
+      const walk = (x - inst.startX) * 1.5;
+      viewport.scrollLeft = inst.scrollLeftStart - walk;
+    });
+
+    // Arrow Buttons
+    if (prevBtn) {
+      prevBtn.addEventListener("click", (e) => {
+        e.stopPropagation();
+        const inst = carouselInstances[viewportId];
+        if (inst) {
+          inst.isPaused = true;
+          if (inst.pauseTimeout) clearTimeout(inst.pauseTimeout);
+          inst.pauseTimeout = setTimeout(() => { if (inst) inst.isPaused = false; }, 4000);
+        }
+        const card = track.querySelector(".project-card, .cert-card");
+        const amount = card ? (card.offsetWidth + 25) : 380;
+        viewport.scrollBy({ left: -amount, behavior: "smooth" });
+      });
+    }
+
+    if (nextBtn) {
+      nextBtn.addEventListener("click", (e) => {
+        e.stopPropagation();
+        const inst = carouselInstances[viewportId];
+        if (inst) {
+          inst.isPaused = true;
+          if (inst.pauseTimeout) clearTimeout(inst.pauseTimeout);
+          inst.pauseTimeout = setTimeout(() => { if (inst) inst.isPaused = false; }, 4000);
+        }
+        const card = track.querySelector(".project-card, .cert-card");
+        const amount = card ? (card.offsetWidth + 25) : 380;
+        viewport.scrollBy({ left: amount, behavior: "smooth" });
+      });
+    }
+  }
+}
+
+// 7. Render Projects (Horizontal Auto-Moving Carousel)
+let currentProjectFilter = "all";
+
 function renderProjects(filter = "all") {
+  currentProjectFilter = filter;
   const grid = document.getElementById("projectsGrid");
+  const viewport = document.getElementById("projectsViewport");
   if (!grid) return;
   
   const projects = getStoredItem(STORAGE_KEYS.PROJECTS, defaultProjects);
@@ -683,9 +824,10 @@ function renderProjects(filter = "all") {
   }
   
   grid.innerHTML = "";
+  if (viewport) viewport.scrollLeft = 0;
   
   if (filtered.length === 0) {
-    grid.innerHTML = `<div style="grid-column: 1/-1; text-align: center; color: #94a3b8; padding: 40px;">No projects found in this category.</div>`;
+    grid.innerHTML = `<div style="text-align: center; color: #94a3b8; padding: 40px; width: 100%;">No projects found in this category.</div>`;
     return;
   }
   
@@ -695,18 +837,21 @@ function renderProjects(filter = "all") {
     card.setAttribute("data-id", project.id);
     
     const tagsHtml = project.techStack.map(t => `<span class="tech-tag">${t}</span>`).join("");
-    
+    const galleryCount = (Array.isArray(project.gallery) ? project.gallery.length : 0);
+    const galleryBadgeHtml = galleryCount > 0 ? `<span class="project-gallery-count-badge" title="${galleryCount + 1} screenshots available"><i class="fas fa-images"></i> +${galleryCount} photos</span>` : "";
+
     card.innerHTML = `
       <div class="project-thumb">
         <img src="${project.image}" alt="${project.title}" onerror="this.src='img/img.png';">
         <span class="project-overlay-badge">${project.category || "Project"}</span>
+        ${galleryBadgeHtml}
         <div class="project-hover-hint">
           <span><i class="fas fa-eye"></i> Quick Details</span>
         </div>
       </div>
       <div class="project-info">
         <h3>${project.title}</h3>
-        <p>${project.shortDesc || project.overview.slice(0, 110) + '...'}</p>
+        <p>${project.shortDesc || (project.overview ? project.overview.slice(0, 110) + '...' : '')}</p>
         <div class="project-tags">
           ${tagsHtml}
         </div>
@@ -723,21 +868,26 @@ function renderProjects(filter = "all") {
     `;
     
     card.addEventListener("click", (e) => {
-      if (e.target.closest(".card-admin-actions")) return;
+      if (e.target.closest(".card-admin-actions") || e.target.closest(".btn-card-details")) return;
       openProjectModal(project.id);
     });
     
     grid.appendChild(card);
   });
+
+  // Activate Smooth Continuous Auto-Scroll Carousel
+  setupCarousel("projectsViewport", "projectsGrid", "projPrevBtn", "projNextBtn", 0.75);
 }
 
-// 8. Render Certificates
+// 8. Render Certificates (Horizontal Auto-Moving Carousel)
 function renderCertificates() {
   const grid = document.getElementById("certsGrid");
+  const viewport = document.getElementById("certsViewport");
   if (!grid) return;
   
   const certs = getStoredItem(STORAGE_KEYS.CERTS, defaultCertificates);
   grid.innerHTML = "";
+  if (viewport) viewport.scrollLeft = 0;
   
   certs.forEach(cert => {
     const card = document.createElement("div");
@@ -769,9 +919,71 @@ function renderCertificates() {
     
     grid.appendChild(card);
   });
+
+  // Activate Smooth Continuous Auto-Scroll Carousel
+  setupCarousel("certsViewport", "certsGrid", "certsPrevBtn", "certsNextBtn", 0.75);
 }
 
-// ================= PROJECT DETAILS MODAL =================
+// ================= PROJECT DETAILS MODAL & GALLERY =================
+let currentModalImages = [];
+let currentModalImageIndex = 0;
+
+function renderModalGallery() {
+  if (currentModalImages.length === 0) return;
+  
+  const heroImg = document.getElementById("modalProjectImage");
+  const counter = document.getElementById("modalGalleryBadge");
+  const strip = document.getElementById("modalGalleryStrip");
+  const prevBtn = document.getElementById("modalGalleryPrev");
+  const nextBtn = document.getElementById("modalGalleryNext");
+  
+  if (heroImg) {
+    heroImg.src = currentModalImages[currentModalImageIndex];
+  }
+  if (counter) {
+    counter.textContent = `${currentModalImageIndex + 1} / ${currentModalImages.length}`;
+  }
+  
+  if (currentModalImages.length > 1) {
+    if (prevBtn) prevBtn.style.display = "flex";
+    if (nextBtn) nextBtn.style.display = "flex";
+    if (counter) counter.style.display = "block";
+    if (strip) {
+      strip.style.display = "flex";
+      strip.innerHTML = "";
+      currentModalImages.forEach((img, idx) => {
+        const thumb = document.createElement("div");
+        thumb.className = `gallery-thumb-item ${idx === currentModalImageIndex ? "active" : ""}`;
+        thumb.innerHTML = `<img src="${img}" alt="Screenshot ${idx + 1}" onerror="this.src='img/img.png';">`;
+        thumb.onclick = (e) => {
+          e.stopPropagation();
+          currentModalImageIndex = idx;
+          renderModalGallery();
+        };
+        strip.appendChild(thumb);
+      });
+    }
+  } else {
+    if (prevBtn) prevBtn.style.display = "none";
+    if (nextBtn) nextBtn.style.display = "none";
+    if (counter) counter.style.display = "none";
+    if (strip) strip.style.display = "none";
+  }
+}
+
+window.navigateModalGallery = function(direction) {
+  if (currentModalImages.length <= 1) return;
+  currentModalImageIndex = (currentModalImageIndex + direction + currentModalImages.length) % currentModalImages.length;
+  renderModalGallery();
+};
+
+window.openLightboxFromModal = function() {
+  if (currentModalImages.length > 0) {
+    const title = document.getElementById("modalProjectTitle").textContent;
+    openLightbox(currentModalImages[currentModalImageIndex], `${title} (Image ${currentModalImageIndex + 1}/${currentModalImages.length})`);
+  }
+};
+
 function openProjectModal(id) {
   const projects = getStoredItem(STORAGE_KEYS.PROJECTS, defaultProjects);
   const project = projects.find(p => p.id === id);
@@ -780,7 +992,6 @@ function openProjectModal(id) {
   const modal = document.getElementById("projectDetailsModal");
   if (!modal) return;
   
-  document.getElementById("modalProjectImage").src = project.image;
   document.getElementById("modalProjectCategory").textContent = project.category || "Web Project";
   document.getElementById("modalProjectTitle").textContent = project.title;
   document.getElementById("modalProjectOverview").textContent = project.overview || project.shortDesc;
@@ -805,6 +1016,18 @@ function openProjectModal(id) {
   } else {
     githubBtn.style.display = "none";
   }
+
+  // Load Primary + Secondary Images
+  currentModalImages = [project.image];
+  if (Array.isArray(project.gallery) && project.gallery.length > 0) {
+    project.gallery.forEach(gImg => {
+      if (gImg && !currentModalImages.includes(gImg)) {
+        currentModalImages.push(gImg);
+      }
+    });
+  }
+  currentModalImageIndex = 0;
+  renderModalGallery();
   
   modal.classList.add("active");
   document.body.style.overflow = "hidden";
@@ -1013,11 +1236,44 @@ window.deleteProject = function(id) {
   showToast("Project deleted successfully", "fa-trash");
 };
 
+// ================= PROJECT FORM GALLERY (SUB-IMAGES) =================
+let currentEditingProjectGallery = [];
+
+function renderProjectFormGallery() {
+  const container = document.getElementById("projGalleryPreviewContainer");
+  if (!container) return;
+  container.innerHTML = "";
+  
+  if (!currentEditingProjectGallery || currentEditingProjectGallery.length === 0) {
+    container.innerHTML = `<span style="font-size: 12px; color: var(--text-muted); grid-column: 1/-1;">لا توجد صور فرعية مضافة حالياً. اختاري صور من جهازك أو اكتبي رابط بالأعلى.</span>`;
+    return;
+  }
+  
+  currentEditingProjectGallery.forEach((imgSrc, idx) => {
+    const card = document.createElement("div");
+    card.className = "gallery-preview-card";
+    card.innerHTML = `
+      <img src="${imgSrc}" alt="Sub image ${idx + 1}" onerror="this.src='img/img.png';" />
+      <button type="button" class="btn-remove-thumb" onclick="removeProjectGalleryImage(${idx})" title="حذف الصورة الفرعية">&times;</button>
+      <span class="thumb-badge">#${idx + 1}</span>
+    `;
+    container.appendChild(card);
+  });
+}
+
+window.removeProjectGalleryImage = function(index) {
+  currentEditingProjectGallery.splice(index, 1);
+  renderProjectFormGallery();
+  showToast("تم حذف الصورة الفرعية", "fa-trash");
+};
+
 window.openAddProjectModal = function() {
   document.getElementById("projectFormTitle").textContent = "Add New Project";
   document.getElementById("editProjectId").value = "";
   document.getElementById("projectForm").reset();
   document.getElementById("projImgPreview").style.display = "none";
+  currentEditingProjectGallery = [];
+  renderProjectFormGallery();
   document.getElementById("projectFormModal").classList.add("active");
   document.body.style.overflow = "hidden";
 };
@@ -1042,6 +1298,9 @@ window.openEditProjectModal = function(id) {
   const preview = document.getElementById("projImgPreview");
   preview.src = project.image;
   preview.style.display = "block";
+  
+  currentEditingProjectGallery = Array.isArray(project.gallery) ? [...project.gallery] : [];
+  renderProjectFormGallery();
   
   document.getElementById("projectFormModal").classList.add("active");
   document.body.style.overflow = "hidden";
@@ -1490,6 +1749,43 @@ document.addEventListener("DOMContentLoaded", function () {
       }
     });
   }
+
+  // Project Gallery (Sub-images) File Upload Reader (Multiple)
+  const projGalleryFileInput = document.getElementById("projGalleryFileInput");
+  if (projGalleryFileInput) {
+    projGalleryFileInput.addEventListener("change", async function(e) {
+      const files = Array.from(e.target.files);
+      if (files.length > 0) {
+        showToast(`Compressing ${files.length} sub-image(s)...`, "fa-images");
+        for (const file of files) {
+          const compressed = await compressImageFile(file, 900, 900, 0.75);
+          if (compressed) {
+            currentEditingProjectGallery.push(compressed);
+          }
+        }
+        renderProjectFormGallery();
+        showToast(`Added ${files.length} sub-image(s) successfully!`, "fa-check-circle");
+        projGalleryFileInput.value = "";
+      }
+    });
+  }
+
+  // Project Gallery (Sub-images) Add by URL / Path
+  const addGalleryUrlBtn = document.getElementById("addGalleryUrlBtn");
+  const projGalleryUrlInput = document.getElementById("projGalleryUrlInput");
+  if (addGalleryUrlBtn && projGalleryUrlInput) {
+    addGalleryUrlBtn.addEventListener("click", function() {
+      const url = projGalleryUrlInput.value.trim();
+      if (!url) {
+        showToast("برجاء إدخال رابط أو مسار الصورة أولاً", "fa-exclamation-circle");
+        return;
+      }
+      currentEditingProjectGallery.push(url);
+      projGalleryUrlInput.value = "";
+      renderProjectFormGallery();
+      showToast("تمت إضافة الصورة الفرعية!", "fa-check-circle");
+    });
+  }
   
   // Project Form Submit
   const projForm = document.getElementById("projectForm");
@@ -1513,6 +1809,7 @@ document.addEventListener("DOMContentLoaded", function () {
         overview: document.getElementById("projOverview").value.trim(),
         techStack: techArray.length > 0 ? techArray : ["Web Development"],
         image: document.getElementById("projImageUrl").value.trim() || "img/img.png",
+        gallery: [...currentEditingProjectGallery],
         liveUrl: document.getElementById("projLiveUrl").value.trim(),
         githubUrl: document.getElementById("projGithubUrl").value.trim()
       };
@@ -1528,7 +1825,7 @@ document.addEventListener("DOMContentLoaded", function () {
       
       saveItem(STORAGE_KEYS.PROJECTS, projects);
       closeAllModals();
-      renderProjects();
+      renderProjects(currentProjectFilter);
     });
   }
   

@@ -988,15 +988,91 @@ section {
   box-shadow: 0 6px 20px rgba(34, 197, 94, 0.5);
 }
 
-/* Projects Grid */
+/* Carousel Wrapper System (Projects & Certifications) */
+.carousel-wrapper {
+  position: relative;
+  width: 100%;
+  margin-top: 25px;
+}
+
+.carousel-viewport {
+  overflow-x: auto;
+  overflow-y: hidden;
+  scroll-behavior: smooth;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+  padding: 15px 5px 25px 5px;
+  cursor: grab;
+}
+
+.carousel-viewport:active {
+  cursor: grabbing;
+}
+
+.carousel-viewport::-webkit-scrollbar {
+  display: none;
+}
+
+.carousel-track {
+  display: flex !important;
+  gap: 25px;
+  flex-wrap: nowrap !important;
+  width: max-content;
+  align-items: stretch;
+}
+
+/* Floating Carousel Navigation Arrows */
+.carousel-nav-btn {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background: rgba(10, 22, 40, 0.9);
+  border: 1px solid rgba(0, 240, 255, 0.45);
+  color: var(--cyan-primary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  cursor: pointer;
+  z-index: 15;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.7), 0 0 15px rgba(0, 240, 255, 0.25);
+  backdrop-filter: blur(10px);
+}
+
+.carousel-nav-btn:hover {
+  background: var(--cyan-primary);
+  color: #050b14;
+  border-color: var(--cyan-primary);
+  box-shadow: 0 0 25px var(--cyan-glow);
+  transform: translateY(-50%) scale(1.12);
+}
+
+.carousel-nav-btn.prev {
+  left: -22px;
+}
+
+.carousel-nav-btn.next {
+  right: -22px;
+}
+
+/* Projects Grid / Track */
 .projects-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
-  gap: 30px;
+  display: flex !important;
+  flex-wrap: nowrap !important;
+  gap: 25px;
+  width: max-content;
 }
 
 /* Project Card */
 .project-card {
+  width: 360px;
+  min-width: 360px;
+  max-width: 360px;
+  flex-shrink: 0;
   background: var(--bg-card);
   backdrop-filter: blur(12px);
   border: 1px solid var(--border-color);
@@ -1045,6 +1121,28 @@ section {
   background: rgba(7, 11, 20, 0.85);
   backdrop-filter: blur(6px);
   border: 1px solid rgba(0, 242, 254, 0.3);
+  color: var(--cyan-primary);
+}
+
+.project-gallery-count-badge {
+  position: absolute;
+  bottom: 12px;
+  right: 12px;
+  background: rgba(5, 11, 20, 0.85);
+  border: 1px solid rgba(0, 240, 255, 0.45);
+  color: #fff;
+  font-size: 11px;
+  font-weight: 500;
+  padding: 3px 10px;
+  border-radius: 14px;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  backdrop-filter: blur(6px);
+  z-index: 2;
+}
+
+.project-gallery-count-badge i {
   color: var(--cyan-primary);
 }
 
@@ -1227,12 +1325,17 @@ body.is-admin .btn-section-admin {
 
 /* ================= CERTIFICATIONS SECTION ================= */
 .certs-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-  gap: 30px;
+  display: flex !important;
+  flex-wrap: nowrap !important;
+  gap: 25px;
+  width: max-content;
 }
 
 .cert-card {
+  width: 340px;
+  min-width: 340px;
+  max-width: 340px;
+  flex-shrink: 0;
   background: var(--bg-card);
   backdrop-filter: blur(12px);
   border: 1px solid var(--border-color);
@@ -1555,20 +1658,222 @@ footer {
   transform: rotate(90deg);
 }
 
-/* Project Details Modal Specifics */
+/* Project Details Modal Specifics & Gallery */
+.project-modal-gallery {
+  position: relative;
+  width: 100%;
+  background: #060a12;
+  border-bottom: 1px solid var(--border-color);
+}
+
 .project-modal-hero {
   position: relative;
   width: 100%;
   height: 380px;
   background: #070b14;
   overflow: hidden;
-  border-bottom: 1px solid var(--border-color);
+  cursor: pointer;
 }
 
 .project-modal-hero img {
   width: 100%;
   height: 100%;
   object-fit: cover;
+  transition: transform 0.4s ease, opacity 0.3s ease;
+}
+
+.project-modal-hero:hover img {
+  transform: scale(1.02);
+}
+
+/* Modal Gallery Controls */
+.modal-gallery-arrow {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: rgba(5, 11, 20, 0.82);
+  border: 1px solid rgba(0, 240, 255, 0.55);
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+  cursor: pointer;
+  z-index: 5;
+  transition: all 0.25s ease;
+  backdrop-filter: blur(8px);
+}
+
+.modal-gallery-arrow:hover {
+  background: var(--cyan-primary);
+  color: #050b14;
+  box-shadow: 0 0 20px var(--cyan-glow);
+  transform: translateY(-50%) scale(1.12);
+}
+
+.modal-gallery-arrow.prev { left: 16px; }
+.modal-gallery-arrow.next { right: 16px; }
+
+.modal-gallery-badge {
+  position: absolute;
+  bottom: 14px;
+  right: 16px;
+  background: rgba(5, 11, 20, 0.88);
+  border: 1px solid rgba(0, 240, 255, 0.45);
+  color: var(--cyan-primary);
+  font-size: 12px;
+  font-weight: 600;
+  padding: 4px 12px;
+  border-radius: 20px;
+  backdrop-filter: blur(8px);
+  z-index: 5;
+}
+
+.modal-gallery-zoom {
+  position: absolute;
+  top: 14px;
+  right: 16px;
+  background: rgba(5, 11, 20, 0.85);
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  color: #fff;
+  font-size: 12px;
+  padding: 6px 14px;
+  border-radius: 20px;
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  cursor: pointer;
+  backdrop-filter: blur(8px);
+  z-index: 5;
+  transition: all 0.25s ease;
+}
+
+.modal-gallery-zoom:hover {
+  border-color: var(--cyan-primary);
+  color: var(--cyan-primary);
+  background: rgba(5, 11, 20, 0.95);
+  box-shadow: 0 0 15px rgba(0, 240, 255, 0.3);
+}
+
+/* Modal Thumbnails Strip */
+.project-gallery-strip {
+  display: flex;
+  gap: 12px;
+  padding: 12px 20px;
+  background: rgba(8, 14, 25, 0.95);
+  overflow-x: auto;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  scrollbar-width: thin;
+  scrollbar-color: var(--cyan-primary) rgba(255, 255, 255, 0.05);
+}
+
+.project-gallery-strip::-webkit-scrollbar {
+  height: 6px;
+}
+
+.project-gallery-strip::-webkit-scrollbar-thumb {
+  background: var(--cyan-primary);
+  border-radius: 4px;
+}
+
+.gallery-thumb-item {
+  position: relative;
+  width: 82px;
+  height: 56px;
+  flex-shrink: 0;
+  border-radius: 8px;
+  overflow: hidden;
+  border: 2px solid transparent;
+  cursor: pointer;
+  opacity: 0.6;
+  transition: all 0.25s ease;
+  background: #000;
+}
+
+.gallery-thumb-item img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.gallery-thumb-item:hover {
+  opacity: 0.95;
+  transform: translateY(-2px);
+}
+
+.gallery-thumb-item.active {
+  opacity: 1;
+  border-color: var(--cyan-primary);
+  box-shadow: 0 0 14px var(--cyan-glow);
+}
+
+/* Admin Edit Form Gallery Manager */
+.form-gallery-box {
+  background: rgba(13, 23, 40, 0.6);
+  border: 1px dashed rgba(0, 240, 255, 0.35);
+  border-radius: 12px;
+  padding: 18px;
+  margin-top: 12px;
+}
+
+.gallery-preview-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(95px, 1fr));
+  gap: 12px;
+  margin-top: 14px;
+}
+
+.gallery-preview-card {
+  position: relative;
+  height: 72px;
+  border-radius: 8px;
+  overflow: hidden;
+  border: 1px solid rgba(0, 240, 255, 0.35);
+  background: #000;
+}
+
+.gallery-preview-card img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.gallery-preview-card .btn-remove-thumb {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: rgba(239, 68, 68, 0.95);
+  color: #fff;
+  border: none;
+  font-size: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: transform 0.2s;
+  z-index: 2;
+}
+
+.gallery-preview-card .btn-remove-thumb:hover {
+  transform: scale(1.18);
+  background: #dc2626;
+}
+
+.gallery-preview-card .thumb-badge {
+  position: absolute;
+  bottom: 2px;
+  left: 4px;
+  font-size: 9.5px;
+  color: #fff;
+  background: rgba(0, 0, 0, 0.75);
+  padding: 1px 6px;
+  border-radius: 4px;
 }
 
 .project-modal-body {
@@ -1861,8 +2166,20 @@ footer {
     font-size: 12px;
   }
   
-  .projects-grid {
-    grid-template-columns: 1fr;
+  .project-card {
+    width: calc(88vw - 30px);
+    min-width: 275px;
+    max-width: 340px;
+  }
+  
+  .cert-card {
+    width: calc(88vw - 30px);
+    min-width: 270px;
+    max-width: 330px;
+  }
+  
+  .carousel-nav-btn {
+    display: none;
   }
   
   .form-row {
