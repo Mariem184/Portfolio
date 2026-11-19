@@ -853,9 +853,17 @@ function setupCarousel(viewportId, trackId, prevBtnId, nextBtnId, speed = 1.35) 
 
 // 7. Render Projects (Horizontal Auto-Moving Carousel)
 let currentProjectFilter = "all";
+let cardSlideshowIntervals = [];
+
+function clearCardSlideshows() {
+  cardSlideshowIntervals.forEach(id => clearInterval(id));
+  cardSlideshowIntervals = [];
+}
 
 function renderProjects(filter = "all") {
   currentProjectFilter = filter;
+  clearCardSlideshows();
+
   const grid = document.getElementById("projectsGrid");
   const viewport = document.getElementById("projectsViewport");
   if (!grid) return;
@@ -882,7 +890,7 @@ function renderProjects(filter = "all") {
     
     const tagsHtml = project.techStack.map(t => `<span class="tech-tag">${t}</span>`).join("");
     const galleryCount = (Array.isArray(project.gallery) ? project.gallery.length : 0);
-    const galleryBadgeHtml = galleryCount > 0 ? `<span class="project-gallery-count-badge" title="${galleryCount + 1} screenshots available"><i class="fas fa-images"></i> +${galleryCount} photos</span>` : "";
+    const galleryBadgeHtml = galleryCount > 0 ? `<span class="project-gallery-count-badge" title="${galleryCount + 1} screenshots"><i class="fas fa-images"></i> 1 / ${galleryCount + 1}</span>` : "";
 
     card.innerHTML = `
       <div class="project-thumb">
@@ -916,6 +924,40 @@ function renderProjects(filter = "all") {
 
   // Activate Smooth Continuous Auto-Scroll Carousel with faster speed and seamless infinite loop
   setupCarousel("projectsViewport", "projectsGrid", "projPrevBtn", "projNextBtn", 1.35);
+
+  // Activate Auto-Slideshow on project cards with multiple screenshots
+  filtered.forEach((project, pIdx) => {
+    const allImgs = [project.image];
+    if (Array.isArray(project.gallery) && project.gallery.length > 0) {
+      project.gallery.forEach(g => {
+        if (g && !allImgs.includes(g)) allImgs.push(g);
+      });
+    }
+
+    if (allImgs.length > 1) {
+      let cardImgIdx = 0;
+      const intervalDelay = 2600 + (pIdx % 3) * 500;
+      const intervalId = setInterval(() => {
+        cardImgIdx = (cardImgIdx + 1) % allImgs.length;
+        const matchingCards = grid.querySelectorAll(`.project-card[data-id="${project.id}"]`);
+        matchingCards.forEach(c => {
+          const imgEl = c.querySelector(".project-thumb img");
+          const badgeEl = c.querySelector(".project-gallery-count-badge");
+          if (imgEl) {
+            imgEl.style.opacity = "0.2";
+            setTimeout(() => {
+              imgEl.src = allImgs[cardImgIdx];
+              imgEl.style.opacity = "1";
+            }, 140);
+          }
+          if (badgeEl) {
+            badgeEl.innerHTML = `<i class="fas fa-images"></i> ${cardImgIdx + 1} / ${allImgs.length}`;
+          }
+        });
+      }, intervalDelay);
+      cardSlideshowIntervals.push(intervalId);
+    }
+  });
 }
 
 // 8. Render Certificates (Horizontal Auto-Moving Carousel)
@@ -966,6 +1008,23 @@ function renderCertificates() {
 // ================= PROJECT DETAILS MODAL & GALLERY =================
 let currentModalImages = [];
 let currentModalImageIndex = 0;
+let modalSlideshowInterval = null;
+
+function startModalAutoSlideshow() {
+  stopModalAutoSlideshow();
+  if (currentModalImages.length > 1) {
+    modalSlideshowInterval = setInterval(() => {
+      navigateModalGallery(1, false);
+    }, 2800);
+  }
+}
+
+function stopModalAutoSlideshow() {
+  if (modalSlideshowInterval) {
+    clearInterval(modalSlideshowInterval);
+    modalSlideshowInterval = null;
+  }
+}
 
 function renderModalGallery() {
   if (currentModalImages.length === 0) return;
@@ -977,7 +1036,11 @@ function renderModalGallery() {
   const nextBtn = document.getElementById("modalGalleryNext");
   
   if (heroImg) {
-    heroImg.src = currentModalImages[currentModalImageIndex];
+    heroImg.style.opacity = "0.3";
+    setTimeout(() => {
+      heroImg.src = currentModalImages[currentModalImageIndex];
+      heroImg.style.opacity = "1";
+    }, 120);
   }
   if (counter) {
     counter.textContent = `${currentModalImageIndex + 1} / ${currentModalImages.length}`;
@@ -997,10 +1060,16 @@ function renderModalGallery() {
         thumb.onclick = (e) => {
           e.stopPropagation();
           currentModalImageIndex = idx;
+          startModalAutoSlideshow();
           renderModalGallery();
         };
         strip.appendChild(thumb);
       });
+
+      const activeThumb = strip.querySelector(".gallery-thumb-item.active");
+      if (activeThumb) {
+        activeThumb.scrollIntoView({ behavior: "smooth", inline: "center", block: "nearest" });
+      }
     }
   } else {
     if (prevBtn) prevBtn.style.display = "none";
@@ -1010,8 +1079,9 @@ function renderModalGallery() {
   }
 }
 
-window.navigateModalGallery = function(direction) {
+window.navigateModalGallery = function(direction, resetTimer = true) {
   if (currentModalImages.length <= 1) return;
+  if (resetTimer) startModalAutoSlideshow();
   currentModalImageIndex = (currentModalImageIndex + direction + currentModalImages.length) % currentModalImages.length;
   renderModalGallery();
 };
@@ -1067,6 +1137,15 @@ function openProjectModal(id) {
   }
   currentModalImageIndex = 0;
   renderModalGallery();
+  startModalAutoSlideshow();
+
+  // Pause modal slideshow on hover
+  const heroBox = document.getElementById("modalHeroBox");
+  if (heroBox && !heroBox._hoverBound) {
+    heroBox._hoverBound = true;
+    heroBox.addEventListener("mouseenter", stopModalAutoSlideshow);
+    heroBox.addEventListener("mouseleave", startModalAutoSlideshow);
+  }
   
   modal.classList.add("active");
   document.body.style.overflow = "hidden";
@@ -1083,6 +1162,7 @@ function openLightbox(imgSrc, title = "") {
 }
 
 function closeAllModals() {
+  stopModalAutoSlideshow();
   document.querySelectorAll(".modal-overlay").forEach(m => m.classList.remove("active"));
   document.body.style.overflow = "";
   
